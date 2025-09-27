@@ -88,6 +88,7 @@ def main():
                 print("➡ Morse Code:", morse)
             else:
                 print("Bitte Text eingeben!")
+                # FIXME jump back to pre selected input
     
         elif choice == "2":
             morse = input("Gib den Morse Code ein (Leerzeichen trennen, '/' für Wortabstand): ").strip()
@@ -97,6 +98,7 @@ def main():
                     print("➡ Text:", text)
             else:
                 print("Bitte Morse-Code eingeben!")
+                # FIXME jump back to pre selected input
     
         elif choice.lower() == "q":
             print("Programm beendet.")

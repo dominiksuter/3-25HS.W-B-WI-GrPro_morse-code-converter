@@ -1,6 +1,7 @@
-# 🆘 Morse Code De-/Encoder (Console)
+# 🍕 PizzaRP – Pizzeria Reference Project (Console)
 
-> 🚧 maybe remove this part
+> 🚧 This is a template repository for student project in the course Programming Foundations at FHNW, BSc BIT.  
+> 🚧 Do not keep this section in your final submission.
 
 This project is intended to:
 
@@ -13,7 +14,7 @@ This project is intended to:
 - Work only within your own copy — do not push to the original template.  
 - Commit regularly to track your progress.
 
-# 🍕 Documentation
+# 🍕 TEMPLATE for documentation
 > 🚧 Please remove this paragraphs having "🚧". These are comments for preparing the documentations.
 ## 📝 Analysis
 
