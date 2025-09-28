@@ -1,92 +1,171 @@
-# Morse Code Converter (for 3-25HS.W-B-WI-GrPro)
+# 🆘 Morse Code De-/Encoder (Console)
 
-A simple command-line tool to **encode text into Morse code** and **decode Morse code back into text**.  
-All conversions are saved to a local JSON file (`morse_history.json`) with timestamps for later reference.
+This project is intended to:
 
----
+- Practice the complete process from **problem analysis to implementation**  
+- Apply basic **Python** programming concepts learned in the Programming Foundations module  
+- Demonstrate the use of **console interaction, data validation, and file processing**  
+- Produce clean, well-structured, and documented code  
+- Prepare students for **teamwork and documentation** in later modules  
+- Use this repository as a starting point by importing it into your own GitHub account.  
+- Work only within your own copy — do not push to the original template.  
+- Commit regularly to track your progress.  
 
-## ✨ Features
-- 🔤 Encode plain text to Morse code
-- 📡 Decode Morse code to plain text
-- ⚠ Error handling for invalid Morse sequences
-- 📝 Automatic history logging in JSON format
-- ⌚ Timestamped entries for better tracking
+# 📖 Documentation
 
----
+## 📝 Analysis
 
-## 📂 Project Structure
-```
-.
-├── morse_converter.py   # Main script
-├── morse_history.json   # Conversion history (auto-generated)
-└── README.md            # Documentation
-```
+**Problem**  
+Many people are curious about Morse code, but manually encoding and decoding messages is error-prone and tedious. There’s a need for a simple tool that translates between text and Morse code quickly and reliably.
 
----
+**Scenario**  
+A user wants to encode messages into Morse code to practice or send signals, or decode received Morse code messages. They use this application in a console, inputting either plain text or Morse code, and receive the corresponding translation instantly. The program also keeps a history of conversions for reference.
 
-## ▶️ Usage
+**User stories:**
 
-### 1. Run the program
-```bash
-python morse_converter.py
-```
+1. As a user, I want to enter text and receive the Morse code translation.  
+2. As a user, I want to enter Morse code and get the corresponding text.  
+3. As a user, I want to see error messages if I input invalid Morse code.  
+4. As a user, I want all conversions to be saved automatically in a JSON history file.  
 
-### 2. Choose an option in the menu
-- **1** → Text ➝ Morse  
-- **2** → Morse ➝ Text  
-- **q** → Quit the program  
+**Use cases:**
 
----
-
-## 💡 Examples
-
-### Encode text
-```
-Deine Wahl (1=Text->Morse, 2=Morse->Text, q=Beenden): 1
-Gib den Text ein: SOS
-➡ Morse Code: ... --- ...
-```
-
-### Decode Morse
-```
-Deine Wahl (1=Text->Morse, 2=Morse->Text, q=Beenden): 2
-Gib den Morse Code ein (Leerzeichen trennen, '/' für Wortabstand): ... --- ...
-➡ Text: SOS
-```
+- Encode text to Morse code  
+- Decode Morse code to text  
+- Save conversion history to `morse_history.json`  
+- Display meaningful error messages for invalid input  
 
 ---
 
-## 🗂 History Logging
-Each conversion is saved in `morse_history.json`:
+## ✅ Project Requirements
+
+Each app must meet the following three criteria in order to be accepted:
+
+1. Interactive app (console input)  
+2. Data validation (input checking)  
+3. File processing (read/write)  
+
+---
+
+### 1. Interactive App (Console Input)
+
+The application interacts with the user via the console. Users can:  
+
+- Choose to encode text to Morse code or decode Morse code to text  
+- Input text or Morse code  
+- View the translation immediately in the console  
+- Exit the program gracefully  
+
+```python
+choice = input("\nDeine Wahl (1=Text->Morse, 2=Morse->Text, q=Beenden): ").strip()
+```
+
+---
+
+### 2. Data Validation
+
+The application validates all user input to ensure correctness:  
+
+- **Empty input handling:** Skips processing if the user enters nothing.  
+
+```python
+if not text:
+    print("Bitte Text eingeben!")
+```
+
+- **Morse code validation:** Checks each Morse code sequence and prints a warning for invalid sequences.  
+
+```python
+if code in MORSE_TO_TEXT:
+    decoded_chars.append(MORSE_TO_TEXT[code])
+else:
+    print(f"⚠ Fehler: '{code}' ist kein gültiger Morse-Code!")
+    return None
+```
+
+- **Menu choice validation:** Ensures that only valid options (1, 2, q) are processed.  
+
+These checks prevent crashes and guide the user to provide correct input, fulfilling the validation requirement.
+
+---
+
+### 3. File Processing
+
+The program reads and writes conversion history using a JSON file:  
+
+- **Output file:** `morse_history.json` — stores a history of all conversions with timestamps, input, and output.  
+
 ```json
 [
     {
-        "timestamp": "2025-09-27T14:32:10",
+        "timestamp": "2025-09-27T14:20:00",
         "input_text": "HELLO",
         "output_morse": ".... . .-.. .-.. ---"
-    },
-    {
-        "timestamp": "2025-09-27T14:33:05",
-        "input_morse": "... --- ...",
-        "output_text": "SOS"
     }
 ]
 ```
 
----
+- Reading the JSON file checks for existing data and prevents errors with corrupted files:  
 
-## ⚙️ Requirements
-- Python **3.7+**
-- No external libraries required (only uses standard library)
+```python
+try:
+    data = json.load(f)
+except json.JSONDecodeError:
+    data = []
+```
 
----
-
-## 🚀 Future Ideas
-- Add support for saving history in **CSV** or **SQLite**
-- Build a simple **GUI version**
-- Play Morse code sounds for better learning
+- Writing appends new entries and ensures proper formatting.  
 
 ---
 
-## 📜 License
-This project is licensed under the MIT License – feel free to use and modify it.
+## ⚙️ Implementation
+
+### Technology
+
+- Python 3.x  
+- Environment: Any IDE or GitHub Codespaces  
+- No external libraries required (only Python libraries)  
+
+### 📂 Repository Structure
+
+```text
+3-25HS.W-B-WI-GrPro_morse-code-converter/
+├── .gitignore              # files git should ignore
+├── main.py                 # main program logic (console application)
+├── morse_history.json      # JSON file storing conversion history
+└── README.md               # project description and documentation
+```
+
+### How to Run
+
+1. Open the repository in your IDE or terminal  
+2. Run the program:  
+
+```bash
+python3 main.py
+```  
+
+3. Follow the on-screen prompts to encode or decode messages  
+
+### Libraries Used
+
+- `json`: For reading/writing the conversion history  
+- `pathlib`: For handling the JSON file path  
+- `datetime`: For adding timestamps to each conversion  
+
+---
+
+## 👥 Team & Contributions
+
+| Name          | Contribution                                              |
+| ------------- | --------------------------------------------------------- |
+| Janis Huser   | Implemented text-to-Morse encoding                        |
+| Fabian Jäggi  | Implemented Morse-to-text decoding                        |
+| Dominik Suter | File handling, saving conversion history & error handling |
+
+---
+
+## 📝 License
+
+This project is provided for **educational use only** as part of the Programming Foundations module.  
+[MIT License](LICENSE)

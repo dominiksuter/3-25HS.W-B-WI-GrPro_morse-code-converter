@@ -3,5 +3,25 @@
         "timestamp": "2025-09-27T11:44:16",
         "input_text": "DAS IST EIN TEST.",
         "output_morse": "-.. .- ... / .. ... - / . .. -. / - . ... - .-.-.-"
+    },
+    {
+        "timestamp": "2025-09-28T20:00:43",
+        "input_text": "SOS",
+        "output_morse": "... --- ..."
+    },
+    {
+        "timestamp": "2025-09-28T20:00:59",
+        "input_morse": "... --- ...",
+        "output_text": "SOS"
+    },
+    {
+        "timestamp": "2025-09-28T20:01:36",
+        "input_text": "LAILA IS MI CORAZON",
+        "output_morse": ".-.. .- .. .-.. .- / .. ... / -- .. / -.-. --- .-. .- --.. --- -."
+    },
+    {
+        "timestamp": "2025-09-28T20:01:45",
+        "input_morse": ".-.. .- .. .-.. .- / .. ... / -- .. / -.-. --- .-. .- --.. --- -.",
+        "output_text": "LAILA IS MI CORAZON"
     }
 ]
