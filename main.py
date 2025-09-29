@@ -109,7 +109,7 @@ def save_to_json(entry):
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
-#Interaktion mit User
+# Interaktion mit User
 def main():
     while True:
         print("\nBitte wähle eine Option:")
