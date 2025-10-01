@@ -57,7 +57,12 @@ The application interacts with the user via the console. Users can:
 - Exit the program gracefully  
 
 ```python
-choice = input("\nDeine Wahl (1=Text->Morse, 2=Morse->Text, q=Beenden): ").strip()
+print("\nBitte wähle eine Option:")
+print("1 = Text ➝  Morse")
+print("2 = Morse ➝  Text")
+print("q = Beenden")
+
+choice = input("\nDeine Wahl: ").strip()
 ```
 
 ---
@@ -73,17 +78,50 @@ if not text:
     print("Bitte Text eingeben!")
 ```
 
-- **Morse code validation:** Checks each Morse code sequence and prints a warning for invalid sequences.  
+```python
+if not morse:
+    print("Bitte Morse-Code eingeben!")
+```
+
+- **User input validation:** Checks each Morse code sequence or character depending on the chosen mode and prints a warning for invalid inputs.  
 
 ```python
-if code in MORSE_TO_TEXT:
-    decoded_chars.append(MORSE_TO_TEXT[code])
+if char in TO_MORSE_DICT:
+    encoded_chars.append(TO_MORSE_DICT[char])
 else:
-    print(f"⚠ Fehler: '{code}' ist kein gültiger Morse-Code!")
+    print(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
+    return None
+```
+
+```python
+if code in TO_TEXT_DICT:
+    decoded_chars.append(TO_TEXT_DICT[code])
+else:
+    print(f"Fehler: '{code}' ist kein gültiger Morse-Code!")
     return None
 ```
 
 - **Menu choice validation:** Ensures that only valid options (1, 2, q) are processed.  
+
+```python
+if not choice:
+    print("Keine Eingabe, bitte nochmal.")
+    continue
+```
+
+```python
+if choice == "1":
+    ...
+
+elif choice == "2":
+    ...
+
+elif choice.lower() == "q":
+    ...
+
+else:
+    print("Ungültige Eingabe, bitte nochmal.")
+```
 
 These checks prevent crashes and guide the user to provide correct input, fulfilling the validation requirement.
 
@@ -98,9 +136,9 @@ The program reads and writes conversion history using a JSON file:
 ```json
 [
     {
-        "timestamp": "2025-09-27T14:20:00",
-        "input_text": "HELLO",
-        "output_morse": ".... . .-.. .-.. ---"
+        "input": "SOS",
+        "output": "... --- ...",
+        "timestamp": "2025-10-01T14:57:17"
     }
 ]
 ```
