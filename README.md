@@ -16,7 +16,7 @@ This project is intended to:
 ## 📝 Analysis
 
 **Problem**  
-Many people are curious about Morse code, but manually encoding and decoding messages is error-prone and tedious. There’s a need for a simple tool that translates between text and Morse code quickly and reliably.
+People are curious about Morse code, but manually encoding and decoding messages is error-prone and tedious. There’s a need for a simple tool that translates between text and Morse code quickly and reliably.
 
 **Scenario**  
 A user wants to encode messages into Morse code to practice or send signals, or decode received Morse code messages. They use this application in a console, inputting either plain text or Morse code, and receive the corresponding translation instantly. The program also keeps a history of conversions for reference.
@@ -55,6 +55,8 @@ The application interacts with the user via the console. Users can:
 - Input text or Morse code  
 - View the translation immediately in the console  
 - Exit the program gracefully  
+
+---
 
 ### 2. Data Validation
 
@@ -102,29 +104,21 @@ The program reads and writes conversion history using a JSON file:
 
 ### How to Run
 
-1. Open the repository in your IDE or terminal  
+1. Open the repository in your IDE or terminal 
 2. Run the program:  
 
-```bash
-python3 main.py
+``` 
+py main.py
 ```  
 
 3. Follow the on-screen prompts to encode or decode messages  
-
-### Libraries Used
-
-- `json`: For reading/writing the conversion history  
-- `pathlib`: For handling the JSON file path  
-- `datetime`: For adding timestamps to each conversion  
-
----
 
 ## 👥 Team & Contributions
 
 | Name          | Contribution                                              |
 | ------------- | --------------------------------------------------------- |
-| Janis Huser   | Implemented text-to-Morse encoding                        |
-| Fabian Jäggi  | Implemented Morse-to-text decoding                        |
+| Janis Huser   | Text-to-Morse encoding                                    |
+| Fabian Jäggi  | Morse-to-text decoding                                    |
 | Dominik Suter | File handling, saving conversion history & error handling |
 
 ---
