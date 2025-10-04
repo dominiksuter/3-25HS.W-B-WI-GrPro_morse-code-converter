@@ -33,7 +33,7 @@ A user wants to encode messages into Morse code to practice or send signals, or 
 - Encode text to Morse code  
 - Decode Morse code to text  
 - Save conversion history to `morse_history.json`  
-- Display meaningful error messages for invalid input  
+- Display meaningful error messages for invalid input
 
 ---
 
