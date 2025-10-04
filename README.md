@@ -56,72 +56,15 @@ The application interacts with the user via the console. Users can:
 - View the translation immediately in the console  
 - Exit the program gracefully  
 
-```python
-print("\nBitte wähle eine Option:")
-print("1 = Text ➝  Morse")
-print("2 = Morse ➝  Text")
-print("q = Beenden")
-
-choice = input("\nDeine Wahl: ").strip()
-```
-
----
-
 ### 2. Data Validation
 
 The application validates all user input to ensure correctness:  
 
 - **Empty input handling:** Skips processing if the user enters nothing.  
 
-```python
-if not text:
-    print("Bitte Text eingeben!")
-```
-
-```python
-if not morse:
-    print("Bitte Morse-Code eingeben!")
-```
-
 - **User input validation:** Checks each Morse code sequence or character depending on the chosen mode and prints a warning for invalid inputs.  
 
-```python
-if char in TO_MORSE_DICT:
-    encoded_chars.append(TO_MORSE_DICT[char])
-else:
-    print(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
-    return None
-```
-
-```python
-if code in TO_TEXT_DICT:
-    decoded_chars.append(TO_TEXT_DICT[code])
-else:
-    print(f"Fehler: '{code}' ist kein gültiger Morse-Code!")
-    return None
-```
-
 - **Menu choice validation:** Ensures that only valid options (1, 2, q) are processed.  
-
-```python
-if not choice:
-    print("Keine Eingabe, bitte nochmal.")
-    continue
-```
-
-```python
-if choice == "1":
-    ...
-
-elif choice == "2":
-    ...
-
-elif choice.lower() == "q":
-    ...
-
-else:
-    print("Ungültige Eingabe, bitte nochmal.")
-```
 
 These checks prevent crashes and guide the user to provide correct input, fulfilling the validation requirement.
 
@@ -133,24 +76,7 @@ The program reads and writes conversion history using a JSON file:
 
 - **Output file:** `morse_history.json` — stores a history of all conversions with timestamps, input, and output.  
 
-```json
-[
-    {
-        "input": "SOS",
-        "output": "... --- ...",
-        "timestamp": "2025-10-01T14:57:17"
-    }
-]
-```
-
-- Reading the JSON file checks for existing data and prevents errors with corrupted files:  
-
-```python
-try:
-    data = json.load(f)
-except json.JSONDecodeError:
-    data = []
-```
+- Reading the JSON file checks for existing data and prevents errors with corrupted files.
 
 - Writing appends new entries and ensures proper formatting.  
 
