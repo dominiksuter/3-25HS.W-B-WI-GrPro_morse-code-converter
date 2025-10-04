@@ -118,7 +118,7 @@ py main.py
 | Name          | Contribution                                              |
 | ------------- | --------------------------------------------------------- |
 | Janis Huser   | Text-to-Morse encoding                                    |
-| Fabian Jäggi  | Morse-to-text decoding                                    |
+| Fabian Jäggi  | Morse-to-Text decoding                                    |
 | Dominik Suter | File handling, saving conversion history & error handling |
 
 ---
