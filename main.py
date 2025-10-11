@@ -206,6 +206,7 @@ def main():
                                 f.write(text)
                             print(f"Text gespeichert in: {out_file}")
                         break
+                break
 
         elif choice.lower() == "q":
             print("Programm beendet.")

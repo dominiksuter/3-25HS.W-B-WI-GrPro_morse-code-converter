@@ -47,36 +47,46 @@
     {
         "input": "HALLO",
         "output": ".... .- .-.. .-.. ---",
-        "timestamp": "2025-10-11T11:27:58"
+        "timestamp": "2025-10-11T11:33:33"
     },
     {
-        "input": ".. -- ..",
-        "output": "IMI",
-        "timestamp": "2025-10-11T11:49:13"
+        "input": "...",
+        "output": "S",
+        "timestamp": "2025-10-11T11:45:41"
     },
     {
-        "input": "SOS",
-        "output": "... --- ...",
-        "timestamp": "2025-10-11T11:49:33"
+        "input": "HALLO",
+        "output": ".... .- .-.. .-.. ---",
+        "timestamp": "2025-10-11T11:45:55"
     },
     {
-        "input": "..--..",
-        "output": "?",
-        "timestamp": "2025-10-11T11:50:05"
+        "input": "HALLO",
+        "output": ".... .- .-.. .-.. ---",
+        "timestamp": "2025-10-11T11:50:47"
     },
     {
-        "input": "..--..",
-        "output": "?",
-        "timestamp": "2025-10-11T11:52:07"
+        "input": "HALLO",
+        "output": ".... .- .-.. .-.. ---",
+        "timestamp": "2025-10-11T11:51:17"
     },
     {
-        "input": "..--",
-        "output": ".-.-.- .-.-.- -....- -....-",
-        "timestamp": "2025-10-11T11:56:16"
+        "input": "HALLO",
+        "output": ".... .- .-.. .-.. ---",
+        "timestamp": "2025-10-11T11:51:56"
     },
     {
-        "input": "..--..",
-        "output": "?",
-        "timestamp": "2025-10-11T11:56:45"
+        "input": "HALLO",
+        "output": ".... .- .-.. .-.. ---",
+        "timestamp": "2025-10-11T11:53:18"
+    },
+    {
+        "input": "HALLO",
+        "output": ".... .- .-.. .-.. ---",
+        "timestamp": "2025-10-11T11:54:53"
+    },
+    {
+        "input": "HALLO",
+        "output": ".... .- .-.. .-.. ---",
+        "timestamp": "2025-10-11T11:55:56"
     }
 ]
