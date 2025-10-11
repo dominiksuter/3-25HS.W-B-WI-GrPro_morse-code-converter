@@ -70,13 +70,13 @@ def encode(text):
         if char in TO_MORSE_DICT:
             encoded_chars.append(TO_MORSE_DICT[char])
         else:
-            print(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
+            printError(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
             return None
 
     morse_code = " ".join(TO_MORSE_DICT.get(char, "") for char in text)
 
     save_to_json(
-        {   
+        {
             "input": text,
             "output": morse_code,
             "timestamp": datetime.now().isoformat(timespec="seconds"),
@@ -95,7 +95,7 @@ def decode(morse_code):
         if code in TO_TEXT_DICT:
             decoded_chars.append(TO_TEXT_DICT[code])
         else:
-            print(f"Fehler: '{code}' ist kein gültiger Morse-Code! Beispiel SOS: ... --- ...")
+            printError(f"Fehler: '{code}' ist kein gültiger Morse-Buchstabe!")
             return None
 
     text = "".join(decoded_chars)
@@ -110,7 +110,8 @@ def decode(morse_code):
     return text
 
 
-# History speichern in JSON File
+# FIXME add to .gitignore and delete from repo, move to generated/ folder
+# Speichern in JSON
 def save_to_json(entry):
     data = []
     if HISTORY_FILE.exists():
@@ -125,6 +126,14 @@ def save_to_json(entry):
     with open(HISTORY_FILE, "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4, ensure_ascii=False)
 
+
+# Format message with red color using ANSI escape codes
+def printError(message):
+    # \033[ starts the escape sequence
+    # 31m sets the text color to red
+    # \033[0m resets the text formatting
+    print(f"\033[31m{message}\033[0m")
+
 # Interaktion mit User
 def main():
     while True:
@@ -136,31 +145,29 @@ def main():
 
         choice = input("\nDeine Wahl: ").strip()
 
-        if not choice: 
-            print("Keine Eingabe, bitte nochmal.")
+        if not choice:
+            printError("Keine Eingabe, bitte nochmal.")
             continue
 
         if choice == "1":
             while True:
                 text = input("Gib den Text ein: ").strip()
                 if not text:
-                    print("Bitte Text eingeben!")
-                    continue  
-                morse = encode(text)
-                if morse:
+                    printError("Bitte Text eingeben!")
+                    continue
+                if morse := encode(text):
                     print("Morse Code:", morse)
                 break
-
 
         elif choice == "2":
             while True:
                 morse = input(
-                    "Gib den Morse Code ein (Jedes Zeichen trennen, '/' für Wortabstand): ").strip()
+                    "Gib den Morse Code ein (Morse-Buchstaben mit Leerzeichen getrennt, '/' für Wortabstand): "
+                ).strip()
                 if not morse:
-                    print("Bitte Morse-Code eingeben!")
+                    printError("Bitte Morse-Code eingeben!")
                     continue
-                text = decode(morse)
-                if text:
+                if text := decode(morse):
                     print("Text:", text)
                     break
         
@@ -213,7 +220,8 @@ def main():
             break
 
         else:
-            print("Ungültige Eingabe, bitte nochmal.")
+            printError("Ungültige Eingabe, bitte nochmal.")
+
 
 # Starte das Hauptprogramm
 if __name__ == "__main__":
