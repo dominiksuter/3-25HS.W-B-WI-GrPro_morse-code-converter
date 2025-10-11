@@ -56,6 +56,11 @@ TO_TEXT_DICT = {v: k for k, v in TO_MORSE_DICT.items()}
 # JSON-Datei für die History
 HISTORY_FILE = Path("morse_history.json")
 
+# Funktion: Prüfen ob String Morse-Code ist
+def is_morse(content):
+    allowed_chars = set(".-/ ")
+    return all(c in allowed_chars for c in content)
+
 # Funktion: Text zu Morse
 def encode(text):
     text = text.upper()
@@ -120,13 +125,13 @@ def save_to_json(entry):
     with open(HISTORY_FILE, "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4, ensure_ascii=False)
 
-
 # Interaktion mit User
 def main():
     while True:
         print("\nBitte wähle eine Option:")
         print("1 = Text ➝  Morse")
         print("2 = Morse ➝  Text")
+        print("3 = File Content ➝  Text / Morse")
         print("q = Beenden")
 
         choice = input("\nDeine Wahl: ").strip()
@@ -158,7 +163,50 @@ def main():
                 if text:
                     print("Text:", text)
                 break
-                        
+        
+        elif choice == "3":
+            while True:
+                filename = input("Dateiname eingeben (nur .txt Files möglich): ").strip()
+                if not filename:
+                    print("Bitte Dateiname eingeben!")
+                    continue
+                
+                if not Path(filename).exists():
+                    print("Datei existiert nicht!")
+                    continue
+                
+                direction = input("1 = Text ➝ Morse, 2 = Morse ➝ Text: ").strip()
+                if direction not in ["1", "2"]:
+                    print("Ungültige Wahl, bitte 1 oder 2 eingeben!")
+                    continue
+                
+                # Datei einlesen
+                with open(filename, "r", encoding="utf-8") as f:
+                    content = f.read().strip()
+                
+                while True:
+                    if direction == "1":
+                        if is_morse(content):
+                            print("Warnung: Datei scheint bereits Morse-Code zu sein!")
+                        else:
+                            morse = encode(content)
+                            if morse:
+                                print("Morse Code:\n", morse)
+                                out_file = filename.replace(".txt", "_morse.txt")
+                                with open(out_file, "w", encoding="utf-8") as f:
+                                    f.write(morse)
+                                print(f"Morse-Code gespeichert in: {out_file}")
+                        break
+                    elif direction == "2":
+                        text = decode(content)
+                        if text:
+                            print("Text:\n", text)
+                            out_file = filename.replace(".txt", "_text.txt")
+                            with open(out_file, "w", encoding="utf-8") as f:
+                                f.write(text)
+                            print(f"Text gespeichert in: {out_file}")
+                        break
+
         elif choice.lower() == "q":
             print("Programm beendet.")
             break
