@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morse Code Converter - Python</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .converter-section {
+            margin-bottom: 25px;
+        }
+
+        .converter-section h2 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            min-height: 60px;
+            word-break: break-all;
+        }
+
+        .error {
+            background: #ffe6e6;
+            border-color: #ff6b6b;
+            color: #d63384;
+        }
+
+        .history {
+            margin-top: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+        }
+
+        .history-item .timestamp {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .morse-reference {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Morse Code Converter</h1>
+        <div class="loading" id="loading">Python wird geladen...</div>
+        
+        <div id="main-content" style="display: none;">
+            <div class="converter-section">
+                <h2>Text zu Morse Code</h2>
+                <textarea id="textInput" placeholder="Gib hier deinen Text ein..."></textarea>
+                <div class="button-group">
+                    <button py-click="convert_text_to_morse">Text → Morse</button>
+                    <button class="clear-btn" py-click="clear_text">Text löschen</button>
+                </div>
+                <div id="textResult" class="result"></div>
+            </div>
+
+            <div class="converter-section">
+                <h2>Morse Code zu Text</h2>
+                <textarea id="morseInput" placeholder="Gib hier den Morse Code ein (Leerzeichen trennen, '/' für Wortabstand)..."></textarea>
+                <div class="button-group">
+                    <button py-click="convert_morse_to_text">Morse → Text</button>
+                    <button class="clear-btn" py-click="clear_morse">Morse löschen</button>
+                </div>
+                <div id="morseResult" class="result"></div>
+            </div>
+
+            <div class="button-group">
+                <button py-click="clear_history">Verlauf löschen</button>
+                <button py-click="download_history">Verlauf herunterladen</button>
+            </div>
+
+            <div class="history">
+                <h2>Conversion History</h2>
+                <div id="historyContainer"></div>
+            </div>
+
+            <div class="morse-reference">
+                <p>Unterstützte Zeichen: A-Z, 0-9, . , ? / - ( )</p>
+                <p>Leerzeichen werden als '/' dargestellt</p>
+            </div>
+        </div>
+    </div>
+
+    <py-script>
+import json
+from datetime import datetime
+from pyscript import document, window
+
+TO_MORSE_DICT = {
+    "A": ".-",
+    "B": "-...",
+    "C": "-.-.",
+    "D": "-..",
+    "E": ".",
+    "F": "..-.",
+    "G": "--.",
+    "H": "....",
+    "I": "..",
+    "J": ".---",
+    "K": "-.-",
+    "L": ".-..",
+    "M": "--",
+    "N": "-.",
+    "O": "---",
+    "P": ".--.",
+    "Q": "--.-",
+    "R": ".-.",
+    "S": "...",
+    "T": "-",
+    "U": "..-",
+    "V": "...-",
+    "W": ".--",
+    "X": "-..-",
+    "Y": "-.--",
+    "Z": "--..",
+    "0": "-----",
+    "1": ".----",
+    "2": "..---",
+    "3": "...--",
+    "4": "....-",
+    "5": ".....",
+    "6": "-....",
+    "7": "--...",
+    "8": "---..",
+    "9": "----.",
+    ".": ".-.-.-",
+    ",": "--..--",
+    "?": "..--..",
+    "/": "-..-.",
+    "-": "-....-",
+    "(": "-.--.",
+    ")": "-.--.-",
+    " ": "/",
+}
+
+TO_TEXT_DICT = {v: k for k, v in TO_MORSE_DICT.items()}
+
+conversion_history = []
+
+def get_history_from_storage():
+    global conversion_history
+    try:
+        storage_data = window.localStorage.getItem('morseHistoryPython')
+        if storage_data:
+            conversion_history = json.loads(storage_data)
+        else:
+            conversion_history = []
+    except:
+        conversion_history = []
+
+def save_history_to_storage():
+    try:
+        window.localStorage.setItem('morseHistoryPython', json.dumps(conversion_history))
+    except:
+        pass
+
+def encode(text):
+    text = text.upper()
+    encoded_chars = []
+
+    for char in text:
+        if char in TO_MORSE_DICT:
+            encoded_chars.append(TO_MORSE_DICT[char])
+        else:
+            return None, f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!"
+
+    morse_code = " ".join(TO_MORSE_DICT.get(char, "") for char in text)
+    return morse_code, None
+
+def decode(morse_code):
+    words = morse_code.strip().split(" ")
+    decoded_chars = []
+
+    for code in words:
+        if code in TO_TEXT_DICT:
+            decoded_chars.append(TO_TEXT_DICT[code])
+        else:
+            return None, f"Fehler: '{code}' ist kein gültiger Morse-Code!"
+
+    text = "".join(decoded_chars)
+    return text, None
+
+def save_to_history(entry):
+    global conversion_history
+    entry["timestamp"] = datetime.now().isoformat()
+    conversion_history.insert(0, entry)
+    
+    if len(conversion_history) > 50:
+        conversion_history = conversion_history[:50]
+    
+    save_history_to_storage()
+    display_history()
+
+def convert_text_to_morse(event):
+    text_input = document.getElementById("textInput")
+    result_div = document.getElementById("textResult")
+    
+    text = text_input.value.strip()
+    
+    if not text:
+        result_div.innerHTML = '<span style="color: #666;">Bitte Text eingeben!</span>'
+        result_div.className = 'result'
+        return
+    
+    morse_code, error = encode(text)
+    
+    if error:
+        result_div.innerHTML = error
+        result_div.className = 'result error'
+    else:
+        result_div.innerHTML = morse_code
+        result_div.className = 'result'
+        
+        save_to_history({
+            "type": "encode",
+            "input": text,
+            "output": morse_code
+        })
+
+def convert_morse_to_text(event):
+    morse_input = document.getElementById("morseInput")
+    result_div = document.getElementById("morseResult")
+    
+    morse = morse_input.value.strip()
+    
+    if not morse:
+        result_div.innerHTML = '<span style="color: #666;">Bitte Morse-Code eingeben!</span>'
+        result_div.className = 'result'
+        return
+    
+    text, error = decode(morse)
+    
+    if error:
+        result_div.innerHTML = error
+        result_div.className = 'result error'
+    else:
+        result_div.innerHTML = text
+        result_div.className = 'result'
+        
+        save_to_history({
+            "type": "decode",
+            "input": morse,
+            "output": text
+        })
+
+def clear_text(event):
+    document.getElementById("textInput").value = ""
+    document.getElementById("textResult").innerHTML = ""
+    document.getElementById("textResult").className = "result"
+
+def clear_morse(event):
+    document.getElementById("morseInput").value = ""
+    document.getElementById("morseResult").innerHTML = ""
+    document.getElementById("morseResult").className = "result"
+
+def clear_history(event):
+    global conversion_history
+    if window.confirm("Möchtest du wirklich den gesamten Verlauf löschen?"):
+        conversion_history = []
+        window.localStorage.removeItem('morseHistoryPython')
+        display_history()
+
+def download_history(event):
+    if not conversion_history:
+        window.alert("Kein Verlauf zum Herunterladen vorhanden!")
+        return
+    
+    data_str = json.dumps(conversion_history, indent=2, ensure_ascii=False)
+    
+    blob = window.Blob.new([data_str], {"type": "application/json"})
+    url = window.URL.createObjectURL(blob)
+    
+    link = document.createElement("a")
+    link.href = url
+    link.download = f"morse_history_{datetime.now().strftime('%Y-%m-%d')}.json"
+    link.click()
+    
+    window.URL.revokeObjectURL(url)
+
+def display_history():
+    container = document.getElementById("historyContainer")
+    
+    if not conversion_history:
+        container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Noch keine Conversions durchgeführt</p>'
+        return
+    
+    history_html = ""
+    for entry in conversion_history:
+        timestamp = datetime.fromisoformat(entry["timestamp"]).strftime("%d.%m.%Y %H:%M:%S")
+        conversion_type = "Text → Morse" if entry["type"] == "encode" else "Morse → Text"
+        
+        history_html += f'''
+        <div class="history-item">
+            <div class="timestamp">{timestamp}</div>
+            <div class="conversion"><strong>Input:</strong> {entry["input"]}</div>
+            <div class="conversion"><strong>Output:</strong> {entry["output"]}</div>
+            <div class="conversion"><strong>Type:</strong> {conversion_type}</div>
+        </div>
+        '''
+    
+    container.innerHTML = history_html
+
+def initialize():
+    get_history_from_storage()
+    display_history()
+    
+    document.getElementById("loading").style.display = "none"
+    document.getElementById("main-content").style.display = "block"
+
+initialize()
+    </py-script>
+</body>
+</html>
