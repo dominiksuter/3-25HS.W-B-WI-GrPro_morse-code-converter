@@ -95,7 +95,7 @@ def decode(morse_code):
         if code in TO_TEXT_DICT:
             decoded_chars.append(TO_TEXT_DICT[code])
         else:
-            print(f"Fehler: '{code}' ist kein gültiger Morse-Code!")
+            print(f"Fehler: '{code}' ist kein gültiger Morse-Code! Beispiel SOS: ... --- ...")
             return None
 
     text = "".join(decoded_chars)
@@ -162,7 +162,7 @@ def main():
                 text = decode(morse)
                 if text:
                     print("Text:", text)
-                break
+                    break
         
         elif choice == "3":
             while True:
