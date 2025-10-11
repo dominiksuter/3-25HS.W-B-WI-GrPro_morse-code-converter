@@ -56,8 +56,6 @@ TO_TEXT_DICT = {v: k for k, v in TO_MORSE_DICT.items()}
 # JSON-Datei für die History
 HISTORY_FILE = Path("morse_history.json")
 
-# TODO encode and decode can be fused into one function
-
 # Funktion: Text zu Morse
 def encode(text):
     text = text.upper()
@@ -107,7 +105,7 @@ def decode(morse_code):
     return text
 
 
-# Speichern in JSON
+# History speichern in JSON File
 def save_to_json(entry):
     data = []
     if HISTORY_FILE.exists():
@@ -133,33 +131,34 @@ def main():
 
         choice = input("\nDeine Wahl: ").strip()
 
-        if not choice:  # Leere Eingabe ignorieren
+        if not choice: 
             print("Keine Eingabe, bitte nochmal.")
             continue
 
         if choice == "1":
-            text = input("Gib den Text ein: ").strip()
-            if text:
+            while True:
+                text = input("Gib den Text ein: ").strip()
+                if not text:
+                    print("Bitte Text eingeben!")
+                    continue  
                 morse = encode(text)
                 if morse:
                     print("Morse Code:", morse)
-            else:
-                print("Bitte Text eingeben!")
-                # FIXME jump back to pre selected input
+                break
 
 
         elif choice == "2":
-            morse = input(
-                "Gib den Morse Code ein (Leerzeichen trennen, '/' für Wortabstand): "
-            ).strip()
-            if morse:
+            while True:
+                morse = input(
+                    "Gib den Morse Code ein (Jedes Zeichen trennen, '/' für Wortabstand): ").strip()
+                if not morse:
+                    print("Bitte Morse-Code eingeben!")
+                    continue
                 text = decode(morse)
                 if text:
                     print("Text:", text)
-            else:
-                print("Bitte Morse-Code eingeben!")
-                # FIXME jump back to pre selected input
-
+                break
+                        
         elif choice.lower() == "q":
             print("Programm beendet.")
             break
@@ -167,6 +166,6 @@ def main():
         else:
             print("Ungültige Eingabe, bitte nochmal.")
 
-
+# Starte das Hauptprogramm
 if __name__ == "__main__":
     main()

@@ -33,7 +33,7 @@ A user wants to encode messages into Morse code to practice or send signals, or 
 - Encode text to Morse code  
 - Decode Morse code to text  
 - Save conversion history to `morse_history.json`  
-- Display meaningful error messages for invalid input
+- Display meaningful error messages for invalid input  
 
 ---
 
@@ -54,7 +54,18 @@ The application interacts with the user via the console. Users can:
 - Choose to encode text to Morse code or decode Morse code to text  
 - Input text or Morse code  
 - View the translation immediately in the console  
-- Exit the program gracefully  
+- Exit the program  
+
+```python
+print("\nBitte wähle eine Option:")
+print("1 = Text ➝  Morse")
+print("2 = Morse ➝  Text")
+print("q = Beenden")
+
+choice = input("\nDeine Wahl: ").strip()
+```
+
+The program now uses **nested input loops** so that invalid input in a chosen mode does **not return to the main menu** immediately, but instead asks the user again until valid input is provided.
 
 ---
 
@@ -64,9 +75,55 @@ The application validates all user input to ensure correctness:
 
 - **Empty input handling:** Skips processing if the user enters nothing.  
 
+```python
+if not text:
+    print("Bitte Text eingeben!")
+```
+
+```python
+if not morse:
+    print("Bitte Morse-Code eingeben!")
+```
+
 - **User input validation:** Checks each Morse code sequence or character depending on the chosen mode and prints a warning for invalid inputs.  
 
+```python
+if char in TO_MORSE_DICT:
+    encoded_chars.append(TO_MORSE_DICT[char])
+else:
+    print(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
+    return None
+```
+
+```python
+if code in TO_TEXT_DICT:
+    decoded_chars.append(TO_TEXT_DICT[code])
+else:
+    print(f"Fehler: '{code}' ist kein gültiger Morse-Code!")
+    return None
+```
+
 - **Menu choice validation:** Ensures that only valid options (1, 2, q) are processed.  
+
+```python
+if not choice:
+    print("Keine Eingabe, bitte nochmal.")
+    continue
+```
+
+```python
+if choice == "1":
+    ...
+
+elif choice == "2":
+    ...
+
+elif choice.lower() == "q":
+    ...
+
+else:
+    print("Ungültige Eingabe, bitte nochmal.")
+```
 
 These checks prevent crashes and guide the user to provide correct input, fulfilling the validation requirement.
 
@@ -78,7 +135,24 @@ The program reads and writes conversion history using a JSON file:
 
 - **Output file:** `morse_history.json` — stores a history of all conversions with timestamps, input, and output.  
 
-- Reading the JSON file checks for existing data and prevents errors with corrupted files.
+```json
+[
+    {
+        "input": "SOS",
+        "output": "... --- ...",
+        "timestamp": "2025-10-01T14:57:17"
+    }
+]
+```
+
+- Reading the JSON file checks for existing data and prevents errors with corrupted files:  
+
+```python
+try:
+    data = json.load(f)
+except json.JSONDecodeError:
+    data = []
+```
 
 - Writing appends new entries and ensures proper formatting.  
 
@@ -104,21 +178,29 @@ The program reads and writes conversion history using a JSON file:
 
 ### How to Run
 
-1. Open the repository in your IDE or terminal 
+1. Open the repository in your IDE or terminal  
 2. Run the program:  
 
-``` 
+```bash
 py main.py
 ```  
 
-3. Follow the on-screen prompts to encode or decode messages  
+3. Follow the on-screen prompts to encode or decode messages.  
+
+### Libraries Used
+
+- `json`: For reading/writing the conversion history  
+- `pathlib`: For handling the JSON file path  
+- `datetime`: For adding timestamps to each conversion  
+
+---
 
 ## 👥 Team & Contributions
 
 | Name          | Contribution                                              |
 | ------------- | --------------------------------------------------------- |
-| Janis Huser   | Text-to-Morse encoding                                    |
-| Fabian Jäggi  | Morse-to-Text decoding                                    |
+| Janis Huser   | Implemented text-to-Morse encoding                        |
+| Fabian Jäggi  | Implemented Morse-to-text decoding                        |
 | Dominik Suter | File handling, saving conversion history & error handling |
 
 ---
@@ -127,3 +209,4 @@ py main.py
 
 This project is provided for **educational use only** as part of the Programming Foundations module.  
 [MIT License](LICENSE)
+
