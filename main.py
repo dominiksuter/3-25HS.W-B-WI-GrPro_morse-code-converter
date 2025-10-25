@@ -134,93 +134,102 @@ def printError(message):
     # \033[0m resets the text formatting
     print(f"\033[31m{message}\033[0m")
 
-# Interaktion mit User
-def main():
+
+def handleTextToMorse():    
     while True:
-        print("\nBitte wähle eine Option:")
-        print("1 = Text ➝  Morse")
-        print("2 = Morse ➝  Text")
-        print("3 = File Content ➝  Text / Morse")
-        print("q = Beenden")
-
-        choice = input("\nDeine Wahl: ").strip()
-
-        if not choice:
-            printError("Keine Eingabe, bitte nochmal.")
+        text = input("Gib den Text ein: ").strip()
+        if not text:
+            printError("Bitte Text eingeben!")
             continue
+        if morse := encode(text):
+            print("Morse Code:", morse)
+        break
 
-        if choice == "1":
-            while True:
-                text = input("Gib den Text ein: ").strip()
-                if not text:
-                    printError("Bitte Text eingeben!")
-                    continue
-                if morse := encode(text):
-                    print("Morse Code:", morse)
-                break
-
-        elif choice == "2":
-            while True:
-                morse = input(
-                    "Gib den Morse Code ein (Morse-Buchstaben mit Leerzeichen getrennt, '/' für Wortabstand): "
-                ).strip()
-                if not morse:
-                    printError("Bitte Morse-Code eingeben!")
-                    continue
-                if text := decode(morse):
-                    print("Text:", text)
-                    break
-        
-        elif choice == "3":
-            while True:
-                filename = input("Dateiname eingeben (nur .txt Files möglich): ").strip()
-                if not filename:
-                    print("Bitte Dateiname eingeben!")
-                    continue
-                
-                if not Path(filename).exists():
-                    print("Datei existiert nicht!")
-                    continue
-                
-                direction = input("1 = Text ➝ Morse, 2 = Morse ➝ Text: ").strip()
-                if direction not in ["1", "2"]:
-                    print("Ungültige Wahl, bitte 1 oder 2 eingeben!")
-                    continue
-                
-                # Datei einlesen
-                with open(filename, "r", encoding="utf-8") as f:
-                    content = f.read().strip()
-                
-                while True:
-                    if direction == "1":
-                        if is_morse(content):
-                            print("Warnung: Datei scheint bereits Morse-Code zu sein!")
-                        else:
-                            morse = encode(content)
-                            if morse:
-                                print("Morse Code:\n", morse)
-                                out_file = filename.replace(".txt", "_morse.txt")
-                                with open(out_file, "w", encoding="utf-8") as f:
-                                    f.write(morse)
-                                print(f"Morse-Code gespeichert in: {out_file}")
-                        break
-                    elif direction == "2":
-                        text = decode(content)
-                        if text:
-                            print("Text:\n", text)
-                            out_file = filename.replace(".txt", "_text.txt")
-                            with open(out_file, "w", encoding="utf-8") as f:
-                                f.write(text)
-                            print(f"Text gespeichert in: {out_file}")
-                        break
-                break
-
-        elif choice.lower() == "q":
-            print("Programm beendet.")
+def handleMorseToText():    
+    while True:
+        morse = input(
+            "Gib den Morse Code ein (Morse-Buchstaben mit Leerzeichen getrennt, '/' für Wortabstand): "
+        ).strip()
+        if not morse:
+            printError("Bitte Morse-Code eingeben!")
+            continue
+        if text := decode(morse):
+            print("Text:", text)
             break
 
-        else:
-            printError("Ungültige Eingabe, bitte nochmal.")
+def handleFileContent():
+    while True:
+        filename = input("Dateiname eingeben (nur .txt Files möglich): ").strip()
+        if not filename:
+            print("Bitte Dateiname eingeben!")
+            continue
+        
+        if not Path(filename).exists():
+            print("Datei existiert nicht!")
+            continue
+        
+        direction = input("1 = Text ➝ Morse, 2 = Morse ➝ Text: ").strip()
+        if direction not in ["1", "2"]:
+            print("Ungültige Wahl, bitte 1 oder 2 eingeben!")
+            continue
+        
+        # Datei einlesen
+        with open(filename, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+        
+        while True:
+            if direction == "1":
+                if is_morse(content):
+                    print("Warnung: Datei scheint bereits Morse-Code zu sein!")
+                else:
+                    morse = encode(content)
+                    if morse:
+                        print("Morse Code:\n", morse)
+                        out_file = filename.replace(".txt", "_morse.txt")
+                        with open(out_file, "w", encoding="utf-8") as f:
+                            f.write(morse)
+                        print(f"Morse-Code gespeichert in: {out_file}")
+                break
+            elif direction == "2":
+                text = decode(content)
+                if text:
+                    print("Text:\n", text)
+                    out_file = filename.replace(".txt", "_text.txt")
+                    with open(out_file, "w", encoding="utf-8") as f:
+                        f.write(text)
+                    print(f"Text gespeichert in: {out_file}")
+                break
+        break
+
+# Interaktion mit User
+def main():
+    try:
+        while True:
+            print("\nBitte wähle eine Option:")
+            print("1 = Text ➝  Morse")
+            print("2 = Morse ➝  Text")
+            print("3 = File Content ➝  Text / Morse")
+            print("q = Beenden")
+
+            choice = input("\nDeine Wahl: ").strip()
+
+            if not choice:
+                printError("Keine Eingabe, bitte nochmal.")
+                continue
+
+            if choice == "1":
+                handleTextToMorse()
+            elif choice == "2":
+                handleMorseToText()
+            elif choice == "3":
+                handleFileContent()
+            elif choice.lower() == "q":
+                print("Programm beendet.")
+                break
+            else:
+                printError("Ungültige Eingabe, bitte nochmal.")
+    except:
+        printError("Ein unerwarteter Fehler ist aufgetreten.")
 
 
 # Starte das Hauptprogramm
