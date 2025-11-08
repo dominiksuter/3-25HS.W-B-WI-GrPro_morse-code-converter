@@ -2,14 +2,16 @@
 
 This project is intended to:
 
-- Practice the complete process from **problem analysis to implementation**
-- Apply basic **Python** programming concepts learned in the Programming Foundations module
-- Demonstrate the use of **console interaction, data validation, and file processing**
-- Produce clean, well-structured, and documented code
-- Prepare students for **teamwork and documentation** in later modules
-- Use this repository as a starting point by importing it into your own GitHub account.
-- Work only within your own copy — do not push to the original template.
-- Commit regularly to track your progress.
+* Practice the complete process from **problem analysis to implementation**
+* Apply basic **Python** programming concepts learned in the Programming Foundations module
+* Demonstrate the use of **console interaction, data validation, and file processing**
+* Produce clean, well-structured, and documented code
+* Prepare students for **teamwork and documentation** in later modules
+* Use this repository as a starting point by importing it into your own GitHub account.
+* Work only within your own copy — do not push to the original template.
+* Commit regularly to track your progress.
+
+---
 
 # 📖 Documentation
 
@@ -19,21 +21,24 @@ This project is intended to:
 People are curious about Morse code, but manually encoding and decoding messages is error-prone and tedious. There’s a need for a simple tool that translates between text and Morse code quickly and reliably.
 
 **Scenario**
-A user wants to encode messages into Morse code to practice or send signals, or decode received Morse code messages. They use this application in a console, inputting either plain text or Morse code, and receive the corresponding translation instantly. The program also keeps a history of conversions for reference.
+A user wants to encode messages into Morse code to practice or send signals, or decode received Morse code messages. They use this application in a console, inputting either plain text, Morse code, or a text file, and receive the corresponding translation instantly. The program also keeps a history of conversions for reference.
 
 **User stories:**
 
 1. As a user, I want to enter text and receive the Morse code translation.
 2. As a user, I want to enter Morse code and get the corresponding text.
-3. As a user, I want to see error messages if I input invalid Morse code.
+3. As a user, I want to see error messages if I input invalid Morse code or unsupported characters.
 4. As a user, I want all conversions to be saved automatically in a JSON history file.
+5. As a user, I want to be able to encode or decode the contents of `.txt` files directly.
 
 **Use cases:**
 
-- Encode text to Morse code
-- Decode Morse code to text
-- Save conversion history to `morse_history.json`
-- Display meaningful error messages for invalid input
+* Encode text to Morse code
+* Decode Morse code to text
+* Process text files (`.txt`) for batch conversion
+* Save conversion history to `morse_history.json`
+* Display meaningful error messages for invalid input using colored console output
+* Automatically handle word separation when decoding Morse code
 
 ---
 
@@ -51,21 +56,21 @@ Each app must meet the following three criteria in order to be accepted:
 
 The application interacts with the user via the console. Users can:
 
-- Choose to encode text to Morse code or decode Morse code to text
-- Input text or Morse code
-- View the translation immediately in the console
-- Exit the program
+* Choose to encode text to Morse code, decode Morse code to text, or process file contents
+* Input text, Morse code, or a `.txt` file
+* View the translation immediately in the console
+* Exit the program
 
 ```python
 print("\nBitte wähle eine Option:")
 print("1 = Text ➝  Morse")
 print("2 = Morse ➝  Text")
+print("3 = File Content ➝  Text / Morse")
 print("q = Beenden")
-
-choice = input("\nDeine Wahl: ").strip()
 ```
 
-The program now uses **nested input loops** so that invalid input in a chosen mode does **not return to the main menu** immediately, but instead asks the user again until valid input is provided.
+Invalid inputs in any mode will **prompt the user again** without returning to the main menu.
+Errors are highlighted in **red** in the console using ANSI escape codes.
 
 ---
 
@@ -73,88 +78,51 @@ The program now uses **nested input loops** so that invalid input in a chosen mo
 
 The application validates all user input to ensure correctness:
 
-- **Empty input handling:** Skips processing if the user enters nothing.
+* **Empty input handling:** Skips processing if the user enters nothing.
+* **Character validation:** Checks if each character or Morse code sequence is valid.
+* **Menu validation:** Ensures only valid menu options are accepted.
+
+Example:
 
 ```python
 if not text:
-    print("Bitte Text eingeben!")
+    printError("Bitte Text eingeben!")
 ```
 
 ```python
-if not morse:
-    print("Bitte Morse-Code eingeben!")
+if char not in TO_MORSE_DICT:
+    printError(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
 ```
 
-- **User input validation:** Checks each Morse code sequence or character depending on the chosen mode and prints a warning for invalid inputs.
-
-```python
-if char in TO_MORSE_DICT:
-    encoded_chars.append(TO_MORSE_DICT[char])
-else:
-    print(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
-    return None
-```
-
-```python
-if code in TO_TEXT_DICT:
-    decoded_chars.append(TO_TEXT_DICT[code])
-else:
-    print(f"Fehler: '{code}' ist kein gültiger Morse-Code!")
-    return None
-```
-
-- **Menu choice validation:** Ensures that only valid options (1, 2, q) are processed.
-
-```python
-if not choice:
-    print("Keine Eingabe, bitte nochmal.")
-    continue
-```
-
-```python
-if choice == "1":
-    ...
-
-elif choice == "2":
-    ...
-
-elif choice.lower() == "q":
-    ...
-
-else:
-    print("Ungültige Eingabe, bitte nochmal.")
-```
-
-These checks prevent crashes and guide the user to provide correct input, fulfilling the validation requirement.
+Invalid Morse sequences are flagged, preventing crashes or incorrect translations.
+Words in Morse code are correctly interpreted using `/` as word separator.
 
 ---
 
 ### 3. File Processing
 
-The program reads and writes conversion history using a JSON file:
+The program supports reading and writing `.txt` files:
 
-- **Output file:** `morse_history.json` — stores a history of all conversions with timestamps, input, and output.
+* Users can provide a text file to **encode to Morse** or **decode from Morse**.
+* Output files are automatically generated with `_morse.txt` or `_text.txt` suffixes.
+* Example: `message.txt` → `message_morse.txt`
+
+The program also maintains a **JSON conversion history**:
+
+* `morse_history.json` stores all translations with timestamps, input, and output.
+* Handles corrupted JSON files gracefully by initializing an empty list.
+
+Example:
 
 ```json
 [
     {
-        "input": "SOS",
-        "output": "... --- ...",
-        "timestamp": "2025-10-01T14:57:17"
+        "input": "HELLO WORLD",
+        "output": ".... . .-.. .-.. --- / .-- --- .-. .-.. -..",
+        "timestamp": "2025-11-08T14:57:17"
     }
 ]
 ```
-
-- Reading the JSON file checks for existing data and prevents errors with corrupted files:
-
-```python
-try:
-    data = json.load(f)
-except json.JSONDecodeError:
-    data = []
-```
-
-- Writing appends new entries and ensures proper formatting.
 
 ---
 
@@ -162,9 +130,9 @@ except json.JSONDecodeError:
 
 ### Technology
 
-- Python 3.x
-- Environment: Any IDE or GitHub Codespaces
-- No external libraries required (only Python libraries)
+* Python 3.x
+* Environment: Any IDE or terminal
+* No external libraries required
 
 ### 📂 Repository Structure
 
@@ -178,30 +146,55 @@ except json.JSONDecodeError:
 
 ### How to Run
 
-1. Open the repository in your IDE or terminal
+1. Open the repository in your IDE or terminal.
 2. Run the program:
 
 ```bash
 py main.py
 ```
 
-3. Follow the on-screen prompts to encode or decode messages.
+3. Follow the on-screen prompts to encode/decode text, Morse code, or file contents.
 
 ### Libraries Used
 
-- `json`: For reading/writing the conversion history
-- `pathlib`: For handling the JSON file path
-- `datetime`: For adding timestamps to each conversion
+* `json`: For reading/writing the conversion history
+* `pathlib`: For handling the JSON file path
+* `datetime`: For adding timestamps to each conversion
 
 ---
 
 ## 👥 Team & Contributions
 
-| Name          | Contribution                                                    |
-| ------------- | --------------------------------------------------------------- |
-| Janis Huser   | Implemented Text-to-Morse encoding & error handling             |
-| Fabian Jäggi  | Implemented Morse-to-Text decoding & error handling             |
-| Dominik Suter | Implemented user prompt, history functionality & error handling |
+| Name          | Contribution                                                                             |
+| ------------- | ---------------------------------------------------------------------------------------- |
+| Janis Huser   | Implemented Text-to-Morse encoding & error handling                                      |
+| Fabian Jäggi  | Implemented Morse-to-Text decoding & error handling                                      |
+| Dominik Suter | Implemented user prompt, file processing, history functionality & colored error handling |
+
+---
+
+## 🧩 Example Session
+
+```text
+Bitte wähle eine Option:
+1 = Text ➝  Morse
+2 = Morse ➝  Text
+3 = File Content ➝  Text / Morse
+q = Beenden
+
+Deine Wahl: 1
+Gib den Text ein: SOS
+Morse Code: ... --- ...
+
+Deine Wahl: 2
+Gib den Morse Code ein: ... --- ...
+Text: SOS
+
+Deine Wahl: 3
+Dateiname eingeben (nur .txt Files möglich): message.txt
+1 = Text ➝ Morse, 2 = Morse ➝ Text: 1
+Morse-Code gespeichert in: message_morse.txt
+```
 
 ---
 
