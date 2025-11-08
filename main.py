@@ -172,7 +172,7 @@ def handleFileContent():
             print("Ungültige Wahl, bitte 1 oder 2 eingeben!")
             continue
         
-        # Datei einlesen
+        # Datei einlesen (Vorschlag von ChatGPT)
         with open(filename, "r", encoding="utf-8") as f:
             content = f.read().strip()
         
