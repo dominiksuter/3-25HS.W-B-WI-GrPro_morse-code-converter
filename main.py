@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 from datetime import datetime
 
-# Dictionary mit Morse-Zeichen
 TO_MORSE_DICT = {
     "A": ".-",
     "B": "-...",
@@ -49,20 +48,38 @@ TO_MORSE_DICT = {
     ")": "-.--.-",
     " ": "/",
 }
+"""
+Lookup dictionary for encoding text to Morse code.
+Keys are characters, values are Morse code representations.
+"""
 
-# Umkehr-Dictionary für Decoding
 TO_TEXT_DICT = {v: k for k, v in TO_MORSE_DICT.items()}
+"""
+Lookup dictionary for decoding Morse code to text.
+Keys are Morse code representations, values are characters.
+"""
 
-# JSON-Datei für die History
 HISTORY_FILE = Path("morse_history.json")
+"""
+Path to the JSON file where conversion history is stored.
+"""
+
 
 # Funktion: Prüfen ob String Morse-Code ist
 def is_morse(content):
+    """
+    Checks if the given content is valid Morse code by verifying that it only contains
+    the allowed characters.
+    """
     allowed_chars = set(".-/ ")
     return all(c in allowed_chars for c in content)
 
-# Funktion: Text zu Morse
+
 def encode(text):
+    """
+    Encode the given text to Morse code.
+    The operation is logged as an entry to a JSON file.
+    """
     text = text.upper()
     encoded_chars = []
 
@@ -88,6 +105,10 @@ def encode(text):
 
 # Funktion: Morse zu Text
 def decode(morse_code):
+    """
+    Decode the given Morse code to text.
+    The operation is logged as an entry to a JSON file.
+    """
     words = morse_code.strip().split(" ")
     decoded_chars = []
 
@@ -110,8 +131,10 @@ def decode(morse_code):
     return text
 
 
-# Speichern in JSON
 def save_to_json(entry):
+    """
+    Save the given entry to the JSON history file.
+    """
     data = []
     if HISTORY_FILE.exists():
         with open(HISTORY_FILE, "r", encoding="utf-8") as file:
@@ -128,13 +151,19 @@ def save_to_json(entry):
 
 # Format message with red color using ANSI escape codes
 def printError(message):
+    """
+    Print the given message in red color to indicate an error.
+    """
     # \033[ starts the escape sequence
     # 31m sets the text color to red
     # \033[0m resets the text formatting
     print(f"\033[31m{message}\033[0m")
 
 
-def handleTextToMorse():    
+def handleTextToMorse():
+    """
+    Handle user input for Text to Morse code conversion.
+    """
     while True:
         text = input("Gib den Text ein: ").strip()
         if not text:
@@ -144,7 +173,11 @@ def handleTextToMorse():
             print("Morse Code:", morse)
         break
 
-def handleMorseToText():    
+
+def handleMorseToText():
+    """
+    Handle user input for Morse code to Text conversion.
+    """
     while True:
         morse = input(
             "Gib den Morse Code ein (Morse-Buchstaben mit Leerzeichen getrennt, '/' für Wortabstand): "
@@ -156,17 +189,21 @@ def handleMorseToText():
             print("Text:", text)
             break
 
+
 def handleFileContent():
+    """
+    Handle user input for file content conversion between Text and Morse code.
+    """
     while True:
         filename = input("Dateiname eingeben (nur .txt Files möglich): ").strip()
         if not filename:
             print("Bitte Dateiname eingeben!")
             continue
-        
+
         if not Path(filename).exists():
             print("Datei existiert nicht!")
             continue
-        
+
         direction = input("1 = Text ➝ Morse, 2 = Morse ➝ Text: ").strip()
         if direction not in ["1", "2"]:
             print("Ungültige Wahl, bitte 1 oder 2 eingeben!")
@@ -175,7 +212,7 @@ def handleFileContent():
         # Datei einlesen (Vorschlag von ChatGPT)
         with open(filename, "r", encoding="utf-8") as f:
             content = f.read().strip()
-        
+
         while True:
             if direction == "1":
                 if is_morse(content):
@@ -200,8 +237,12 @@ def handleFileContent():
                 break
         break
 
+
 # Interaktion mit User
 def main():
+    """
+    Main function to interact with the user.
+    """
     try:
         while True:
             print("\nBitte wähle eine Option:")
@@ -227,8 +268,8 @@ def main():
                 break
             else:
                 printError("Ungültige Eingabe, bitte nochmal.")
-    except:
-        printError("Ein unerwarteter Fehler ist aufgetreten.")
+    except Exception as e:
+        printError(f"Ein unerwarteter Fehler ist aufgetreten: {e}")
 
 
 # Starte das Hauptprogramm
