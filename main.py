@@ -110,7 +110,6 @@ def decode(morse_code):
     return text
 
 
-# FIXME add to .gitignore and delete from repo, move to generated/ folder
 # Speichern in JSON
 def save_to_json(entry):
     data = []
