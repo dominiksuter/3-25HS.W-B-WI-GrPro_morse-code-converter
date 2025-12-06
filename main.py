@@ -200,7 +200,11 @@ def handleFileContent():
             print("Bitte Dateiname eingeben!")
             continue
 
-        if not Path(filename).exists():
+        if not filename.endswith(".txt"):
+            print("Nur .txt-Dateien sind erlaubt!")
+            continue
+
+        if not Path(filename).exists() or not Path(filename).is_file():
             print("Datei existiert nicht!")
             continue
 
