@@ -165,11 +165,11 @@ py main.py
 
 ## 👥 Team & Contributions
 
-| Name          | Contribution                                                                             |
-| ------------- | ---------------------------------------------------------------------------------------- |
-| Janis Huser   | Implemented Text-to-Morse encoding & error handling                                      |
-| Fabian Jäggi  | Implemented Morse-to-Text decoding & error handling                                      |
-| Dominik Suter | Implemented user prompt, file processing, history functionality & colored error handling |
+| Name          | Contribution                                                                              |
+| ------------- | ----------------------------------------------------------------------------------------- |
+| Janis Huser   | Implemented file content translation & corresponding error handling                       |
+| Fabian Jäggi  | Implemented Text-to-Morse encoding, Morse-to-Text decoding & corresponding error handling |
+| Dominik Suter | Implemented user prompting, history functionality & code enhancements                     |
 
 ---
 

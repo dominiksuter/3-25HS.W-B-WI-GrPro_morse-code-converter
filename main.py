@@ -52,20 +52,25 @@ TO_MORSE_DICT = {
 Lookup dictionary for encoding text to Morse code.
 Keys are characters, values are Morse code representations.
 """
-
 TO_TEXT_DICT = {v: k for k, v in TO_MORSE_DICT.items()}
 """
 Lookup dictionary for decoding Morse code to text.
 Keys are Morse code representations, values are characters.
 """
-
 HISTORY_FILE = Path("morse_history.json")
 """
 Path to the JSON file where conversion history is stored.
 """
+MAX_FILE_SIZE_MEGABYTES = 5
+"""
+Maximum allowed file size for input files in megabytes.
+"""
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MEGABYTES * 1024 * 1024
+"""
+Maximum allowed file size for input files in bytes.
+"""
 
 
-# Funktion: Prüfen ob String Morse-Code ist
 def is_morse(content):
     """
     Checks if the given content is valid Morse code by verifying that it only contains
@@ -91,19 +96,10 @@ def encode(text):
             return None
 
     morse_code = " ".join(TO_MORSE_DICT.get(char, "") for char in text)
-
-    save_to_json(
-        {
-            "input": text,
-            "output": morse_code,
-            "timestamp": datetime.now().isoformat(timespec="seconds"),
-        }
-    )
-
+    save_to_json(text, morse_code)
     return morse_code
 
 
-# Funktion: Morse zu Text
 def decode(morse_code):
     """
     Decode the given Morse code to text.
@@ -120,36 +116,23 @@ def decode(morse_code):
             return None
 
     text = "".join(decoded_chars)
-
-    save_to_json(
-        {
-            "input": morse_code,
-            "output": text,
-            "timestamp": datetime.now().isoformat(timespec="seconds"),
-        }
-    )
+    save_to_json(morse_code, text)
     return text
 
 
-def save_to_json(entry):
+def save_to_json(input, output):
     """
-    Save the given entry to the JSON history file.
+    Append the given entry to the JSON history file.
     """
-    data = []
-    if HISTORY_FILE.exists():
-        with open(HISTORY_FILE, "r", encoding="utf-8") as file:
-            try:
-                data = json.load(file)
-            except json.JSONDecodeError:
-                data = []
-
-    data.append(entry)
-
-    with open(HISTORY_FILE, "w", encoding="utf-8") as file:
-        json.dump(data, file, indent=4, ensure_ascii=False)
+    entry = {
+        "input": input,
+        "output": output,
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+    }
+    with open(HISTORY_FILE, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
-# Format message with red color using ANSI escape codes
 def printError(message):
     """
     Print the given message in red color to indicate an error.
@@ -204,16 +187,23 @@ def handleFileContent():
             print("Nur .txt-Dateien sind erlaubt!")
             continue
 
-        if not Path(filename).exists() or not Path(filename).is_file():
+        file_path = Path(filename)
+        if not file_path.exists() or not file_path.is_file():
             print("Datei existiert nicht!")
+            continue
+
+        file_size = file_path.stat().st_size
+        if file_size > MAX_FILE_SIZE_BYTES:
+            print(
+                f"Datei ist zu gross ({file_size / (1024 * 1024):.2f} MB). Maximal erlaubt: {MAX_FILE_SIZE_MEGABYTES} MB."
+            )
             continue
 
         direction = input("1 = Text ➝ Morse, 2 = Morse ➝ Text: ").strip()
         if direction not in ["1", "2"]:
             print("Ungültige Wahl, bitte 1 oder 2 eingeben!")
             continue
-        
-        # Datei einlesen (Vorschlag von ChatGPT)
+
         with open(filename, "r", encoding="utf-8") as f:
             content = f.read().strip()
 
@@ -242,7 +232,6 @@ def handleFileContent():
         break
 
 
-# Interaktion mit User
 def main():
     """
     Main function to interact with the user.
@@ -276,6 +265,5 @@ def main():
         printError(f"Ein unerwarteter Fehler ist aufgetreten: {e}")
 
 
-# Starte das Hauptprogramm
 if __name__ == "__main__":
     main()
