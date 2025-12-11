@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from datetime import datetime
-
+ 
 TO_MORSE_DICT = {
     "A": ".-",
     "B": "-...",
@@ -61,7 +61,7 @@ HISTORY_FILE = Path("morse_history.json")
 """
 Path to the JSON file where conversion history is stored.
 """
-MAX_FILE_SIZE_MEGABYTES = 5
+MAX_FILE_SIZE_MEGABYTES = 1
 """
 Maximum allowed file size for input files in megabytes.
 """
@@ -69,8 +69,8 @@ MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MEGABYTES * 1024 * 1024
 """
 Maximum allowed file size for input files in bytes.
 """
-
-
+ 
+ 
 def is_morse(content):
     """
     Checks if the given content is valid Morse code by verifying that it only contains
@@ -78,8 +78,8 @@ def is_morse(content):
     """
     allowed_chars = set(".-/ ")
     return all(c in allowed_chars for c in content)
-
-
+ 
+ 
 def encode(text):
     """
     Encode the given text to Morse code.
@@ -87,19 +87,19 @@ def encode(text):
     """
     text = text.upper()
     encoded_chars = []
-
+ 
     for char in text:
         if char in TO_MORSE_DICT:
             encoded_chars.append(TO_MORSE_DICT[char])
         else:
             printError(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
             return None
-
-    morse_code = " ".join(TO_MORSE_DICT.get(char, "") for char in text)
+ 
+    morse_code = " ".join(encoded_chars)
     save_to_json(text, morse_code)
     return morse_code
-
-
+ 
+ 
 def decode(morse_code):
     """
     Decode the given Morse code to text.
@@ -107,32 +107,43 @@ def decode(morse_code):
     """
     words = morse_code.strip().split(" ")
     decoded_chars = []
-
+ 
     for code in words:
         if code in TO_TEXT_DICT:
             decoded_chars.append(TO_TEXT_DICT[code])
         else:
             printError(f"Fehler: '{code}' ist kein gültiger Morse-Buchstabe!")
             return None
-
+ 
     text = "".join(decoded_chars)
     save_to_json(morse_code, text)
     return text
-
-
+ 
+ 
 def save_to_json(input, output):
     """
-    Append the given entry to the JSON history file.
+    Save the given entry to the JSON history file.
     """
-    entry = {
-        "input": input,
-        "output": output,
-        "timestamp": datetime.now().isoformat(timespec="seconds"),
-    }
-    with open(HISTORY_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-
-
+    data = []
+    if HISTORY_FILE.exists():
+        with open(HISTORY_FILE, "r", encoding="utf-8") as file:
+            try:
+                data = json.load(file)
+            except json.JSONDecodeError:
+                data = []
+ 
+    data.append(
+        {
+            "input": input,
+            "output": output,
+            "timestamp": datetime.now().isoformat(timespec="seconds"),
+        }
+    )
+ 
+    with open(HISTORY_FILE, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4, ensure_ascii=False)
+ 
+ 
 def printError(message):
     """
     Print the given message in red color to indicate an error.
@@ -141,8 +152,8 @@ def printError(message):
     # 31m sets the text color to red
     # \033[0m resets the text formatting
     print(f"\033[31m{message}\033[0m")
-
-
+ 
+ 
 def handleTextToMorse():
     """
     Handle user input for Text to Morse code conversion.
@@ -155,8 +166,8 @@ def handleTextToMorse():
         if morse := encode(text):
             print("Morse Code:", morse)
         break
-
-
+ 
+ 
 def handleMorseToText():
     """
     Handle user input for Morse code to Text conversion.
@@ -171,42 +182,42 @@ def handleMorseToText():
         if text := decode(morse):
             print("Text:", text)
             break
-
-
+ 
+ 
 def handleFileContent():
     """
     Handle user input for file content conversion between Text and Morse code.
     """
     while True:
-        filename = input("Dateiname eingeben (nur .txt Files möglich): ").strip()
-        if not filename:
-            print("Bitte Dateiname eingeben!")
+        file_name = input("Dateiname eingeben (nur .txt Files möglich): ").strip()
+        if not file_name:
+            printError("Bitte Dateiname eingeben!")
             continue
-
-        if not filename.endswith(".txt"):
-            print("Nur .txt-Dateien sind erlaubt!")
+ 
+        if not file_name.endswith(".txt"):
+            printError("Nur .txt-Dateien sind erlaubt!")
             continue
-
-        file_path = Path(filename)
+ 
+        file_path = Path(file_name)
         if not file_path.exists() or not file_path.is_file():
-            print("Datei existiert nicht!")
+            printError("Datei existiert nicht!")
             continue
-
+ 
         file_size = file_path.stat().st_size
         if file_size > MAX_FILE_SIZE_BYTES:
-            print(
+            printError(
                 f"Datei ist zu gross ({file_size / (1024 * 1024):.2f} MB). Maximal erlaubt: {MAX_FILE_SIZE_MEGABYTES} MB."
             )
             continue
-
+ 
         direction = input("1 = Text ➝ Morse, 2 = Morse ➝ Text: ").strip()
         if direction not in ["1", "2"]:
-            print("Ungültige Wahl, bitte 1 oder 2 eingeben!")
+            printError("Ungültige Wahl, bitte 1 oder 2 eingeben!")
             continue
-
-        with open(filename, "r", encoding="utf-8") as f:
+ 
+        with open(file_name, "r", encoding="utf-8") as f:
             content = f.read().strip()
-
+ 
         while True:
             if direction == "1":
                 if is_morse(content):
@@ -215,7 +226,7 @@ def handleFileContent():
                     morse = encode(content)
                     if morse:
                         print("Morse Code:\n", morse)
-                        out_file = filename.replace(".txt", "_morse.txt")
+                        out_file = file_name.replace(".txt", "_morse.txt")
                         with open(out_file, "w", encoding="utf-8") as f:
                             f.write(morse)
                         print(f"Morse-Code gespeichert in: {out_file}")
@@ -224,14 +235,14 @@ def handleFileContent():
                 text = decode(content)
                 if text:
                     print("Text:\n", text)
-                    out_file = filename.replace(".txt", "_text.txt")
+                    out_file = file_name.replace(".txt", "_text.txt")
                     with open(out_file, "w", encoding="utf-8") as f:
                         f.write(text)
                     print(f"Text gespeichert in: {out_file}")
                 break
         break
-
-
+ 
+ 
 def main():
     """
     Main function to interact with the user.
@@ -243,13 +254,13 @@ def main():
             print("2 = Morse ➝  Text")
             print("3 = File Content ➝  Text / Morse")
             print("q = Beenden")
-
+ 
             choice = input("\nDeine Wahl: ").strip()
-
+ 
             if not choice:
                 printError("Keine Eingabe, bitte nochmal.")
                 continue
-
+ 
             if choice == "1":
                 handleTextToMorse()
             elif choice == "2":
@@ -263,7 +274,7 @@ def main():
                 printError("Ungültige Eingabe, bitte nochmal.")
     except Exception as e:
         printError(f"Ein unerwarteter Fehler ist aufgetreten: {e}")
-
-
+ 
+ 
 if __name__ == "__main__":
     main()
