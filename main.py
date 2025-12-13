@@ -92,7 +92,7 @@ def encode(text):
         if char in TO_MORSE_DICT:
             encoded_chars.append(TO_MORSE_DICT[char])
         else:
-            printError(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
+            print_error(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
             return None
 
     morse_code = " ".join(encoded_chars)
@@ -112,7 +112,7 @@ def decode(morse_code):
         if code in TO_TEXT_DICT:
             decoded_chars.append(TO_TEXT_DICT[code])
         else:
-            printError(f"Fehler: '{code}' ist kein gültiger Morse-Buchstabe!")
+            print_error(f"Fehler: '{code}' ist kein gültiger Morse-Buchstabe!")
             return None
 
     text = "".join(decoded_chars)
@@ -144,7 +144,7 @@ def save_to_json(input, output):
         json.dump(data, file, indent=4, ensure_ascii=False)
 
 
-def printError(message):
+def print_error(message):
     """
     Print the given message in red color to indicate an error.
     """
@@ -154,21 +154,21 @@ def printError(message):
     print(f"\033[31m{message}\033[0m")
 
 
-def handleTextToMorse():
+def handle_text_to_morse():
     """
     Handle user input for Text to Morse code conversion.
     """
     while True:
         text = input("Gib den Text ein: ").strip()
         if not text:
-            printError("Bitte Text eingeben!")
+            print_error("Bitte Text eingeben!")
             continue
         if morse := encode(text):
             print("Morse Code:", morse)
         break
 
 
-def handleMorseToText():
+def handle_morse_to_text():
     """
     Handle user input for Morse code to Text conversion.
     """
@@ -177,42 +177,42 @@ def handleMorseToText():
             "Gib den Morse Code ein (Morse-Buchstaben mit Leerzeichen getrennt, '/' für Wortabstand): "
         ).strip()
         if not morse:
-            printError("Bitte Morse-Code eingeben!")
+            print_error("Bitte Morse-Code eingeben!")
             continue
         if text := decode(morse):
             print("Text:", text)
             break
 
 
-def handleFileContent():
+def handle_file_content():
     """
     Handle user input for file content conversion between Text and Morse code.
     """
     while True:
         file_name = input("Dateiname eingeben (nur .txt Files möglich): ").strip()
         if not file_name:
-            printError("Bitte Dateiname eingeben!")
+            print_error("Bitte Dateiname eingeben!")
             continue
 
         if not file_name.endswith(".txt"):
-            printError("Nur .txt-Dateien sind erlaubt!")
+            print_error("Nur .txt-Dateien sind erlaubt!")
             continue
 
         file_path = Path(file_name)
         if not file_path.exists() or not file_path.is_file():
-            printError("Datei existiert nicht!")
+            print_error("Datei existiert nicht!")
             continue
 
         file_size = file_path.stat().st_size
         if file_size > MAX_FILE_SIZE_BYTES:
-            printError(
+            print_error(
                 f"Datei ist zu gross ({file_size / (1024 * 1024):.2f} MB). Maximal erlaubt: {MAX_FILE_SIZE_MEGABYTES} MB."
             )
             continue
 
         direction = input("1 = Text ➝ Morse, 2 = Morse ➝ Text: ").strip()
         if direction not in ["1", "2"]:
-            printError("Ungültige Wahl, bitte 1 oder 2 eingeben!")
+            print_error("Ungültige Wahl, bitte 1 oder 2 eingeben!")
             continue
 
         with open(file_name, "r", encoding="utf-8") as f:
@@ -258,22 +258,22 @@ def main():
             choice = input("\nDeine Wahl: ").strip()
 
             if not choice:
-                printError("Keine Eingabe, bitte nochmal.")
+                print_error("Keine Eingabe, bitte nochmal.")
                 continue
 
             if choice == "1":
-                handleTextToMorse()
+                handle_text_to_morse()
             elif choice == "2":
-                handleMorseToText()
+                handle_morse_to_text()
             elif choice == "3":
-                handleFileContent()
+                handle_file_content()
             elif choice.lower() == "q":
                 print("Programm beendet.")
                 break
             else:
-                printError("Ungültige Eingabe, bitte nochmal.")
+                print_error("Ungültige Eingabe, bitte nochmal.")
     except Exception as e:
-        printError(f"Ein unerwarteter Fehler ist aufgetreten: {e}")
+        print_error(f"Ein unerwarteter Fehler ist aufgetreten: {e}")
 
 
 if __name__ == "__main__":
