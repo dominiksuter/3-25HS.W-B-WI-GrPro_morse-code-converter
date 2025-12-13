@@ -28,8 +28,9 @@ A user wants to encode messages into Morse code to practice or send signals, or 
 1. As a user, I want to enter text and receive the Morse code translation.
 2. As a user, I want to enter Morse code and get the corresponding text.
 3. As a user, I want to see error messages if I input invalid Morse code or unsupported characters.
-4. As a user, I want all conversions to be saved automatically in a JSON history file.
-5. As a user, I want to be able to encode or decode the contents of `.txt` files directly.
+4. As a user, I want to be able to encode or decode the contents of `.txt` files directly.
+5. As a user, I want to see error messages if I input unsupported or invalid files.
+6. As a user, I want all conversions to be saved automatically in a JSON history file.
 
 **Use cases:**
 
@@ -38,7 +39,6 @@ A user wants to encode messages into Morse code to practice or send signals, or 
 * Process text files (`.txt`) for batch conversion
 * Save conversion history to `morse_history.json`
 * Display meaningful error messages for invalid input using colored console output
-* Automatically handle word separation when decoding Morse code
 
 ---
 
@@ -57,7 +57,7 @@ Each app must meet the following three criteria in order to be accepted:
 The application interacts with the user via the console. Users can:
 
 * Choose to encode text to Morse code, decode Morse code to text, or process file contents
-* Input text, Morse code, or a `.txt` file
+* Input text, Morse code, or a path to a `.txt` file
 * View the translation immediately in the console
 * Exit the program
 
@@ -69,8 +69,7 @@ print("3 = File Content ➝  Text / Morse")
 print("q = Beenden")
 ```
 
-Invalid inputs in any mode will **prompt the user again** without returning to the main menu.
-Errors are highlighted in **red** in the console using ANSI escape codes.
+Invalid inputs in any mode will **prompt the user again** without returning to the main menu. After an option finishes executing, the program returns to the main menu for further use. Errors are highlighted in **red** in the console using ANSI escape codes.
 
 ---
 
@@ -78,23 +77,29 @@ Errors are highlighted in **red** in the console using ANSI escape codes.
 
 The application validates all user input to ensure correctness:
 
-* **Empty input handling:** Skips processing if the user enters nothing.
-* **Character validation:** Checks if each character or Morse code sequence is valid.
 * **Menu validation:** Ensures only valid menu options are accepted.
+* **Empty input handling:** Empty inputs are ignored and the user is prompted again.
+* **Character validation:** Checks if each character or Morse code sequence is valid.
+* **File validation:** Verifies that the file exists and has the correct file extension and size.
 
 Example:
 
 ```python
 if not text:
-    printError("Bitte Text eingeben!")
+    print_error("Bitte Text eingeben!")
 ```
 
 ```python
 if char not in TO_MORSE_DICT:
-    printError(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
+    print_error(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
 ```
 
-Invalid Morse sequences are flagged, preventing crashes or incorrect translations.
+```python
+if not file_name.endswith(".txt"):
+    print_error("Nur .txt-Dateien sind erlaubt!")
+```
+
+Invalid Morse sequences and unsupported characters are flagged, preventing crashes or incorrect translations.
 Words in Morse code are correctly interpreted using `/` as word separator.
 
 ---
@@ -104,12 +109,11 @@ Words in Morse code are correctly interpreted using `/` as word separator.
 The program supports reading and writing `.txt` files:
 
 * Users can provide a text file to **encode to Morse** or **decode from Morse**.
-* Output files are automatically generated with `_morse.txt` or `_text.txt` suffixes.
-* Example: `message.txt` → `message_morse.txt`
+* In addition to showing the translation in the console, the program automatically generates output files using the suffixes `_morse.txt` or `_text.txt` in the source file’s directory (`message.txt` → `message_morse.txt` or `message_text.txt`).
 
-The program also maintains a **JSON conversion history**:
+The program also maintains a **JSON conversion history** for successful translations:
 
-* `morse_history.json` stores all translations with timestamps, input, and output.
+* `morse_history.json` stores all sucessful translations with input, output and timestamp.
 * Handles corrupted JSON files gracefully by initializing an empty list.
 
 Example:
@@ -130,9 +134,12 @@ Example:
 
 ### Technology
 
-* Python 3.x
+* Python 3.8+
+* No external libraries required, uses only the Python standard library.
 * Environment: Any IDE or terminal
-* No external libraries required
+
+**Note:** The ANSI escape codes `\033[` used for colored errors may not render correctly in all consoles. Modern terminals like Windows Terminal, PowerShell, macOS Terminal, and Linux terminals generally support them, while older `cmd.exe` may not.
+
 
 ### 📂 Repository Structure
 
@@ -146,20 +153,26 @@ Example:
 
 ### How to Run
 
-1. Open the repository in your IDE or terminal.
-2. Run the program:
-
+1. Verify Python is installed with a supported version. If needed, follow the official Python documentation for installation:
 ```bash
-py main.py
+python3 --version
 ```
-
-3. Follow the on-screen prompts to encode/decode text, Morse code, or file contents.
+2. Clone the repository:
+```bash
+git clone https://github.com/dominiksuter/3-25HS.W-B-WI-GrPro_morse-code-converter.git
+```
+3. Open the repository in your IDE or terminal.
+4. Run the program:
+```bash
+python3 main.py
+```
+5. Follow the on-screen prompts to encode or decode text, Morse code, and file contents.
 
 ### Libraries Used
 
-* `json`: For reading/writing the conversion history
-* `pathlib`: For handling the JSON file path
-* `datetime`: For adding timestamps to each conversion
+* `json`: For reading and writing the conversion history
+* `pathlib`: For handling file paths
+* `datetime`: For adding timestamps to each conversion entry
 
 ---
 

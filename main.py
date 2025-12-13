@@ -61,11 +61,11 @@ HISTORY_FILE = Path("morse_history.json")
 """
 Path to the JSON file where conversion history is stored.
 """
-MAX_FILE_SIZE_MEGABYTES = 1
+MAX_FILE_SIZE_KILOBYTES = 500
 """
-Maximum allowed file size for input files in megabytes.
+Maximum allowed file size for input files in kilobytes.
 """
-MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MEGABYTES * 1024 * 1024
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_KILOBYTES * 1024
 """
 Maximum allowed file size for input files in bytes.
 """
@@ -92,7 +92,9 @@ def encode(text):
         if char in TO_MORSE_DICT:
             encoded_chars.append(TO_MORSE_DICT[char])
         else:
-            print_error(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
+            print_error(
+                f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!"
+            )
             return None
 
     morse_code = " ".join(encoded_chars)
@@ -206,14 +208,16 @@ def handle_file_content():
         file_size = file_path.stat().st_size
         if file_size > MAX_FILE_SIZE_BYTES:
             print_error(
-                f"Datei ist zu gross ({file_size / (1024 * 1024):.2f} MB). Maximal erlaubt: {MAX_FILE_SIZE_MEGABYTES} MB."
+                f"Datei ist um {file_size - MAX_FILE_SIZE_BYTES} Byte(s) zu gross. Maximal erlaubt: {MAX_FILE_SIZE_KILOBYTES} KB."
             )
             continue
 
-        direction = input("1 = Text ➝ Morse, 2 = Morse ➝ Text: ").strip()
-        if direction not in ["1", "2"]:
-            print_error("Ungültige Wahl, bitte 1 oder 2 eingeben!")
-            continue
+        while True:
+            direction = input("1 = Text ➝ Morse, 2 = Morse ➝ Text: ").strip()
+            if direction in ["1", "2"]:
+                break
+            else:
+                print_error("Ungültige Wahl, bitte 1 oder 2 eingeben!")
 
         with open(file_name, "r", encoding="utf-8") as f:
             content = f.read().strip()
