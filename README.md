@@ -127,19 +127,29 @@ A user wants to encode messages into Morse code to practice or send signals, or 
 
 
 
-## Use cases
+## Use Case Diagram
+![Morse Code Use Cases](docs/use_cases.png)
 
-* Encode text to Morse code
-* Decode Morse code to text
-* Process text files (`.txt`) for batch conversion
-* Save conversion history to `morse_history.json`
-* Display meaningful error messages for invalid input using colored console output
+**Use cases**
+## Main Use Cases
+
+- Translate Text (User)
+- Translate Morse (User) 
+- Translate from file .txt (User)
+- View supported characters (User)
+- View translation history (User)
+  - Manage history entries (User)
+  - Export History (User)
+
+- Validate input (Admin)
+
+**Actors**
+- User (acts with chatbot)
+- Admin (validates input)
 
 ---
 
 ### Wireframes / Mockups
-
-> 🚧 Add screenshots of the wireframe mockups you chose to implement.
 
 ![Wireframes – Home/Transactions](docs/ui-images/wireframe-mockup.jpg)
 
