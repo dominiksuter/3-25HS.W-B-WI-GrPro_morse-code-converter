@@ -137,6 +137,14 @@ A user wants to encode messages into Morse code to practice or send signals, or 
 
 ---
 
+### Wireframes / Mockups
+
+> 🚧 Add screenshots of the wireframe mockups you chose to implement.
+
+![Wireframes – Home/Transactions](docs/ui-images/wireframe-mockup.jpg)
+
+---
+
 ## ✅ Project Requirements
 
 Each app must meet the following three criteria in order to be accepted:
