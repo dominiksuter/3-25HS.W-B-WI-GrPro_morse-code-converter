@@ -11,7 +11,7 @@ This project is intended to:
 * Work only within your own copy — do not push to the original template.
 * Commit regularly to track your progress.
 
----
+###### 
 
 # 📖 Documentation
 
@@ -23,16 +23,111 @@ People are curious about Morse code, but manually encoding and decoding messages
 **Scenario**
 A user wants to encode messages into Morse code to practice or send signals, or decode received Morse code messages. They use this application in a console, inputting either plain text, Morse code, or a text file, and receive the corresponding translation instantly. The program also keeps a history of conversions for reference.
 
-**User stories:**
+## User stories
 
-1. As a user, I want to enter text and receive the Morse code translation.
-2. As a user, I want to enter Morse code and get the corresponding text.
-3. As a user, I want to see error messages if I input invalid Morse code or unsupported characters.
-4. As a user, I want to be able to encode or decode the contents of `.txt` files directly.
-5. As a user, I want to see error messages if I input unsupported or invalid files.
-6. As a user, I want all conversions to be saved automatically in a JSON history file.
+### 1. Chat-Like Interface  
+#### As a user, I want to interact with the application in a chat-style interface.  
+**Description:** The application displays inputs and outputs as conversational messages, so I can see both my requests and the system’s responses in a single chat history.  
+**Inputs:** user message | `str`  
+**Outputs:** chat message | `dict`
 
-**Use cases:**
+---
+
+### 2. Translate Text to Morse Code  
+#### As a user, I want to translate text into Morse code in the chat.  
+**Description:** When I enter plain text, the system responds with the Morse code translation as a chat message.  
+**Inputs:** text message | `str`  
+**Outputs:** Morse code message | `str`  
+
+---
+
+### 3. Translate Morse Code to Text  
+#### As a user, I want to translate Morse code into readable text in the chat.  
+**Description:** When I enter Morse code, the system responds with the decoded text as a chat message.  
+**Inputs:** Morse code message | `str`  
+**Outputs:** decoded text message | `str`  
+
+---
+
+### 4. Validate Text Input  
+#### As a user, I want to receive error messages for invalid or unsupported text input.  
+**Description:** The system validates text messages and responds with an error message if unsupported characters are entered.  
+**Inputs:** text message | `str`  
+**Outputs:** error message | `str` or processed result | `str`  
+
+---
+
+### 5. Validate Morse Code Input  
+#### As a user, I want to receive error messages for invalid Morse code input.  
+**Description:** The system validates Morse code messages and responds with an error message if the sequence is invalid or unknown.  
+**Inputs:** Morse code message | `str`  
+**Outputs:** error message | `str` or processed result | `str`  
+
+---
+
+### 6. Display Supported Characters  
+#### As a user, I want to see which characters are supported.  
+**Description:** The system can send a chat message listing all supported characters and their Morse code equivalents.  
+**Inputs:** user request | `str`  
+**Outputs:** supported characters message | `dict` (keys: `char: str`, `morse: str`)  
+
+---
+
+### 7. File-Based Translation in Chat  
+#### As a user, I want to upload a text file and translate its content in the chat.  
+**Description:** When I upload a `.txt` file, the system reads the file and responds with the encoded or decoded content as a chat message.  
+**Inputs:** file | `.txt`  
+**Outputs:** translated content message | `str`  
+
+---
+
+### 8. File Validation  
+#### As a user, I want to receive error messages for invalid or unsupported files.  
+**Description:** The system validates uploaded files and responds with an error message if the file format or content is unsupported.  
+**Inputs:** file | `any`  
+**Outputs:** error message | `str` or none | `NoneType`  
+
+---
+
+### 9. Chat and Message Management  
+#### As a user, I want to manage multiple chats and individual messages.  
+**Description:**  
+- Users can create multiple chat sessions and switch between them.  
+- Entire chats can be pinned & deleted.  
+- Individual messages within a chat can be deleted or copied.  
+- All messages (user and system) remain stored in the chat history for each session. 
+
+**Inputs:** chat or message action `dict`  
+**Outputs:** updated chat sessions or messages | `list[dict]`
+
+---
+
+### 10. Export Chat History  
+#### As a user, I want to download my chat history.  
+**Description:** The system allows exporting a full chat conversation (messages and responses) in a structured format.  
+**Inputs:** export request | `str`  
+**Outputs:** downloadable file | `.json`  
+
+---
+
+### 11. Audio Playback of Morse Code (Optional)  
+#### As a user, I want to hear Morse code from a chat message.  
+**Description:** The system can play audio for Morse code messages in the chat.  
+**Inputs:** Morse code message | `str`  
+**Outputs:** audio playback | `Audio` object  
+
+---
+
+### 12. Voice and Audio Input (Optional)  
+#### As a user, I want to input Morse code via voice or audio file in the chat.  
+**Description:** The system can decode Morse code from a voice message or uploaded audio file and respond with the decoded text as a chat message.  
+**Inputs:** audio input | `Audio` or file | `.wav/.mp3`  
+**Outputs:** decoded text message | `str` 
+
+
+
+
+## Use cases
 
 * Encode text to Morse code
 * Decode Morse code to text
