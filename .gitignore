@@ -206,8 +206,10 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# History file
+# History / database files
 morse_history.json
+morse_chat.db
+morse_chat.db-journal
 
-# Text files
-*.txt
+# Text files used for testing
+test*.txt
