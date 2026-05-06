@@ -1,11 +1,17 @@
-from nicegui import ui
-
 from dotenv import load_dotenv
 
+load_dotenv(override=True)
+
+import os
+from nicegui import ui
 from db.database_manager import DatabaseManager
 from ui.app_layout import register_pages
 
-load_dotenv()
+
+storage_secret = os.getenv(
+    "SSECRET",
+    "62ca79c467777fd6101172d11b555bf20608291dc0830ef9e2d66b98346372c2",
+)
 
 
 def start() -> None:
@@ -16,7 +22,7 @@ def start() -> None:
         host="localhost",
         port=8080,
         reload=False,
-        show=False,
+        storage_secret=storage_secret,
     )
 
 

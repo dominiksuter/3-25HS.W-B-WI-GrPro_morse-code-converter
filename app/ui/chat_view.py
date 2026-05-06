@@ -4,8 +4,7 @@ from datetime import datetime
 from nicegui import ui
 
 from db.models.chat import Chat
-from services.chat_service import ChatService
-from services.morse_converter import ConversionError, MorseConverter
+from services import ChatService, MorseConverter, ConversionError
 from ui.message_bubble import MessageBubble
 
 MAX_FILE_BYTES = 500 * 1024

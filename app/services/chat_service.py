@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from db.database_manager import DatabaseManager
 from db.models.chat import Chat
 from db.models.message import Message
+from db.models.user import User
 from services.morse_converter import ConversionError, MorseConverter
 
 
@@ -17,12 +18,25 @@ class ChatService:
     to deal with persistence concerns.
     """
 
+    def __init__(self, user_auid: str) -> None:
+        self.user_auid = user_auid
+
     @staticmethod
     def _session() -> Session:
         return DatabaseManager.session()
 
+    def _get_or_create_user_id(self, session: Session) -> int:
+        stmt = select(User).where(User.auid == self.user_auid)
+        user = session.execute(stmt).scalar_one_or_none()
+        if user is None:
+            user = User(auid=self.user_auid)
+            session.add(user)
+            session.flush()
+        return user.id
+
     def list_chats(self) -> list[Chat]:
         with self._session() as session:
+            user_id = self._get_or_create_user_id(session)
             sort_key = case(
                 (Chat.pinned.is_(True), Chat.updated_at),
                 else_=Chat.unpinned_updated_at,
@@ -30,6 +44,7 @@ class ChatService:
             stmt = (
                 select(Chat)
                 .options(joinedload(Chat.messages))
+                .where(Chat.user_id == user_id)
                 .order_by(
                     Chat.pinned.desc(), sort_key.desc(), Chat.created_at.desc()
                 )
@@ -38,12 +53,13 @@ class ChatService:
             session.expunge_all()
             return list(chats)
 
-    def get_chat(self, chat_id: int) -> Chat | None:
+    def get_chat(self, chat_id: str) -> Chat | None:
         with self._session() as session:
+            user_id = self._get_or_create_user_id(session)
             stmt = (
                 select(Chat)
                 .options(joinedload(Chat.messages))
-                .where(Chat.id == chat_id)
+                .where(Chat.id == chat_id, Chat.user_id == user_id)
             )
             chat = session.execute(stmt).unique().scalar_one_or_none()
             if chat is not None:
@@ -52,8 +68,10 @@ class ChatService:
 
     def create_chat(self, title: str = "Neuer Chat") -> Chat:
         with self._session() as session:
+            user_id = self._get_or_create_user_id(session)
             now = datetime.now()
             chat = Chat(
+                user_id=user_id,
                 title=title,
                 created_at=now,
                 updated_at=now,
@@ -65,16 +83,24 @@ class ChatService:
             session.expunge(chat)
             return chat
 
-    def delete_chat(self, chat_id: int) -> None:
+    def delete_chat(self, chat_id: str) -> None:
         with self._session() as session:
-            chat = session.get(Chat, chat_id)
+            user_id = self._get_or_create_user_id(session)
+            stmt = select(Chat).where(
+                Chat.id == chat_id, Chat.user_id == user_id
+            )
+            chat = session.execute(stmt).scalar_one_or_none()
             if chat is not None:
                 session.delete(chat)
                 session.commit()
 
-    def toggle_pin(self, chat_id: int) -> bool:
+    def toggle_pin(self, chat_id: str) -> bool:
         with self._session() as session:
-            chat = session.get(Chat, chat_id)
+            user_id = self._get_or_create_user_id(session)
+            stmt = select(Chat).where(
+                Chat.id == chat_id, Chat.user_id == user_id
+            )
+            chat = session.execute(stmt).scalar_one_or_none()
             if chat is None:
                 return False
             if chat.unpinned_updated_at is None:
@@ -83,30 +109,44 @@ class ChatService:
             session.commit()
             return chat.pinned
 
-    def rename_chat(self, chat_id: int, title: str) -> None:
+    def rename_chat(self, chat_id: str, title: str) -> None:
         with self._session() as session:
-            chat = session.get(Chat, chat_id)
+            user_id = self._get_or_create_user_id(session)
+            stmt = select(Chat).where(
+                Chat.id == chat_id, Chat.user_id == user_id
+            )
+            chat = session.execute(stmt).scalar_one_or_none()
             if chat is not None:
                 chat.title = title or "Neuer Chat"
                 session.commit()
 
-    def clear_messages(self, chat_id: int) -> None:
+    def clear_messages(self, chat_id: str) -> None:
         with self._session() as session:
-            chat = session.get(Chat, chat_id)
+            user_id = self._get_or_create_user_id(session)
+            stmt = select(Chat).where(
+                Chat.id == chat_id, Chat.user_id == user_id
+            )
+            chat = session.execute(stmt).scalar_one_or_none()
             if chat is None:
                 return
             for message in list(chat.messages):
                 session.delete(message)
             session.commit()
 
-    def delete_message(self, message_id: int) -> None:
+    def delete_message(self, message_id: str) -> None:
         with self._session() as session:
-            msg = session.get(Message, message_id)
+            user_id = self._get_or_create_user_id(session)
+            stmt = (
+                select(Message)
+                .join(Chat, Chat.id == Message.chat_id)
+                .where(Message.id == message_id, Chat.user_id == user_id)
+            )
+            msg = session.execute(stmt).scalar_one_or_none()
             if msg is not None:
                 session.delete(msg)
                 session.commit()
 
-    def send_message(self, chat_id: int, raw_input: str) -> list[Message]:
+    def send_message(self, chat_id: str, raw_input: str) -> list[Message]:
         """Persist the user's input + the converted response (or an error)."""
         cleaned = raw_input.strip()
         if not cleaned:
@@ -122,7 +162,11 @@ class ChatService:
             error = True
 
         with self._session() as session:
-            chat = session.get(Chat, chat_id)
+            user_id = self._get_or_create_user_id(session)
+            stmt = select(Chat).where(
+                Chat.id == chat_id, Chat.user_id == user_id
+            )
+            chat = session.execute(stmt).scalar_one_or_none()
             if chat is None:
                 raise ValueError(f"Chat {chat_id} not found")
 
@@ -155,11 +199,11 @@ class ChatService:
             session.expunge_all()
             return [user_msg, bot_msg]
 
-    def export_chat_json(self, chat_id: int) -> str | None:
+    def export_chat_json(self, chat_id: str) -> str | None:
         chat = self.get_chat(chat_id)
         if chat is None:
             return None
         return json.dumps(chat.to_dict(), indent=2, ensure_ascii=False)
 
-    def import_text_file(self, chat_id: int, content: str) -> list[Message]:
+    def import_text_file(self, chat_id: str, content: str) -> list[Message]:
         return self.send_message(chat_id, content)

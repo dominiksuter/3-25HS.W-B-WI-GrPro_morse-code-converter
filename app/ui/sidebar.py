@@ -1,12 +1,12 @@
 from nicegui import ui
 
-from services.chat_service import ChatService
+from services import ChatService
 
 
 class Sidebar:
     """Left navigation sidebar listing all chats."""
 
-    def __init__(self, service: ChatService, active_chat_id: int | None) -> None:
+    def __init__(self, service: ChatService, active_chat_id: str | None) -> None:
         self.service = service
         self.active_chat_id = active_chat_id
         self._render()
@@ -72,11 +72,11 @@ class Sidebar:
         chat = self.service.create_chat()
         ui.navigate.to(f"/chat/{chat.id}")
 
-    def _toggle_pin(self, chat_id: int) -> None:
+    def _toggle_pin(self, chat_id: str) -> None:
         self.service.toggle_pin(chat_id)
         ui.navigate.to(f"/chat/{chat_id}" if chat_id == self.active_chat_id else "/")
 
-    def _rename_chat(self, chat_id: int, current_title: str) -> None:
+    def _rename_chat(self, chat_id: str, current_title: str) -> None:
         with ui.dialog() as dialog, ui.card().style("min-width: 420px;"):
             ui.label("Chat umbenennen").style("font-size: 1.05rem; font-weight: 600;")
             title_input = ui.input(value=current_title, placeholder="Name eingeben …").props(
@@ -95,7 +95,7 @@ class Sidebar:
                 ui.button("Speichern", on_click=save).props("unelevated no-caps")
         dialog.open()
 
-    def _delete_chat(self, chat_id: int) -> None:
+    def _delete_chat(self, chat_id: str) -> None:
         self.service.delete_chat(chat_id)
         if chat_id == self.active_chat_id:
             ui.navigate.to("/")

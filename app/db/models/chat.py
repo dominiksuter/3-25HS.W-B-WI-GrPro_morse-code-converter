@@ -1,19 +1,29 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
+import uuid
 
-from sqlalchemy import Boolean, DateTime, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.models.base import Base
 
 if TYPE_CHECKING:
     from db.models.message import Message
+    from db.models.user import User
 
 
 class Chat(Base):
     __tablename__ = "chats"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[str] = mapped_column(
+        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+    user_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
     title: Mapped[str] = mapped_column(String(120), default="Neuer Chat")
     pinned: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(
@@ -34,10 +44,12 @@ class Chat(Base):
         cascade="all, delete-orphan",
         order_by="Message.timestamp",
     )
+    user: Mapped["User"] = relationship("User", back_populates="chats")
 
     def to_dict(self) -> dict:
         return {
             "id": self.id,
+            "user_id": self.user_id,
             "title": self.title,
             "pinned": self.pinned,
             "created_at": self.created_at.isoformat(timespec="seconds"),
