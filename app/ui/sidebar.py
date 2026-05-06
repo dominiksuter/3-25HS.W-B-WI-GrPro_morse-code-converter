@@ -41,17 +41,32 @@ class Sidebar:
             ui.icon("chat_bubble_outline").style("font-size: 16px;")
             ui.label(chat.title).classes("title")
             pin_icon = "push_pin" if chat.pinned else "o_push_pin"
-            ui.button(
-                icon=pin_icon,
-                on_click=lambda c=chat: self._toggle_pin(c.id),
-            ).props("flat dense round").classes(
+            pin_btn = ui.button(icon=pin_icon).props("flat dense round").classes(
                 "icon-btn pin-btn" + (" pinned" if chat.pinned else "")
             )
+            pin_btn.on(
+                "click",
+                lambda _e, c=chat: self._toggle_pin(c.id),
+                js_handler="(e) => { e.stopPropagation(); emit(e); }",
+            )
             with ui.element("div").classes("actions"):
-                ui.button(
-                    icon="delete_outline",
-                    on_click=lambda c=chat: self._delete_chat(c.id),
-                ).props("flat dense round").classes("icon-btn")
+                rename_btn = ui.button(icon="edit").props("flat dense round").classes(
+                    "icon-btn"
+                )
+                rename_btn.on(
+                    "click",
+                    lambda _e, c=chat: self._rename_chat(c.id, c.title),
+                    js_handler="(e) => { e.stopPropagation(); emit(e); }",
+                )
+
+                delete_btn = ui.button(icon="delete_outline").props(
+                    "flat dense round"
+                ).classes("icon-btn")
+                delete_btn.on(
+                    "click",
+                    lambda _e, c=chat: self._delete_chat(c.id),
+                    js_handler="(e) => { e.stopPropagation(); emit(e); }",
+                )
 
     def _new_chat(self) -> None:
         chat = self.service.create_chat()
@@ -60,6 +75,25 @@ class Sidebar:
     def _toggle_pin(self, chat_id: int) -> None:
         self.service.toggle_pin(chat_id)
         ui.navigate.to(f"/chat/{chat_id}" if chat_id == self.active_chat_id else "/")
+
+    def _rename_chat(self, chat_id: int, current_title: str) -> None:
+        with ui.dialog() as dialog, ui.card().style("min-width: 420px;"):
+            ui.label("Chat umbenennen").style("font-size: 1.05rem; font-weight: 600;")
+            title_input = ui.input(value=current_title, placeholder="Name eingeben …").props(
+                "autofocus"
+            )
+            with ui.row().classes("justify-end w-full"):
+                ui.button("Abbrechen", on_click=dialog.close).props("flat no-caps")
+
+                def save() -> None:
+                    self.service.rename_chat(chat_id, title_input.value)
+                    dialog.close()
+                    ui.navigate.to(
+                        f"/chat/{self.active_chat_id}" if self.active_chat_id else "/"
+                    )
+
+                ui.button("Speichern", on_click=save).props("unelevated no-caps")
+        dialog.open()
 
     def _delete_chat(self, chat_id: int) -> None:
         self.service.delete_chat(chat_id)

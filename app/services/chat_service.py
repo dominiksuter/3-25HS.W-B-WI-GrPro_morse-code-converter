@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import case, select
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import SessionLocal
@@ -23,10 +23,14 @@ class ChatService:
 
     def list_chats(self) -> list[Chat]:
         with self._session() as session:
+            sort_key = case(
+                (Chat.pinned.is_(True), Chat.updated_at),
+                else_=Chat.unpinned_updated_at,
+            )
             stmt = (
                 select(Chat)
                 .options(joinedload(Chat.messages))
-                .order_by(Chat.pinned.desc(), Chat.updated_at.desc())
+                .order_by(Chat.pinned.desc(), sort_key.desc(), Chat.created_at.desc())
             )
             chats = session.execute(stmt).unique().scalars().all()
             session.expunge_all()
@@ -46,7 +50,8 @@ class ChatService:
 
     def create_chat(self, title: str = "Neuer Chat") -> Chat:
         with self._session() as session:
-            chat = Chat(title=title)
+            now = datetime.now()
+            chat = Chat(title=title, created_at=now, updated_at=now, unpinned_updated_at=now)
             session.add(chat)
             session.commit()
             session.refresh(chat)
@@ -65,6 +70,8 @@ class ChatService:
             chat = session.get(Chat, chat_id)
             if chat is None:
                 return False
+            if chat.unpinned_updated_at is None:
+                chat.unpinned_updated_at = chat.updated_at
             chat.pinned = not chat.pinned
             session.commit()
             return chat.pinned
@@ -127,7 +134,11 @@ class ChatService:
 
             if not chat.messages and not error:
                 chat.title = (cleaned[:30] + "…") if len(cleaned) > 30 else cleaned
-            chat.updated_at = datetime.now()
+            now = datetime.now()
+            chat.updated_at = now
+            # Keep the unpinned history position stable while pinned.
+            if not chat.pinned:
+                chat.unpinned_updated_at = now
 
             session.commit()
             session.refresh(user_msg)
