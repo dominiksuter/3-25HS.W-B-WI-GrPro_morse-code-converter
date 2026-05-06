@@ -1,10 +1,11 @@
+import re
 from datetime import datetime
 
 from nicegui import ui
 
 from app.models.chat import Chat
 from app.services.chat_service import ChatService
-from app.services.morse_converter import MorseConverter
+from app.services.morse_converter import ConversionError, MorseConverter
 from app.ui.message_bubble import MessageBubble
 
 MAX_FILE_BYTES = 500 * 1024
@@ -75,6 +76,7 @@ class ChatView:
                     auto_upload=True,
                     max_file_size=MAX_FILE_BYTES,
                     on_upload=self._handle_upload,
+                    on_rejected=self._handle_upload_rejected,
                 ).props('accept=".txt" flat dense').classes("attach-btn").tooltip(
                     "Textdatei hochladen (.txt, max. 500 KB)"
                 )
@@ -123,28 +125,85 @@ class ChatView:
         )
         ui.download(payload.encode("utf-8"), filename)
 
-    def _handle_upload(self, event) -> None:
+    def _handle_upload_rejected(self, event) -> None:
+        ui.notify(
+            "Dateiformat nicht erlaubt. Nur .txt-Dateien möglich.",
+            type="warning",
+        )
+
+    async def _handle_upload(self, event) -> None:
+        upload = getattr(event, "file", None)
+        filename = (getattr(upload, "name", "") or "").strip()
+        content_type = (getattr(upload, "content_type", "") or "").strip().lower()
+
+        # Enforce file type: allow only .txt; fall back to MIME type if name is missing.
+        is_txt_by_name = bool(filename) and filename.lower().endswith(".txt")
+        is_txt_by_mime = content_type.startswith("text/") or content_type == ""
+        if not is_txt_by_name and not (not filename and is_txt_by_mime):
+            ui.notify(
+                "Dateiformat nicht erlaubt. Nur .txt-Dateien möglich.",
+                type="warning",
+            )
+            return
+
         try:
-            content = event.content.read().decode("utf-8").strip()
+            raw = await upload.text(encoding="utf-8")
         except UnicodeDecodeError:
             ui.notify("Datei ist keine gültige UTF-8 Textdatei.", type="negative")
             return
+        except Exception:
+            ui.notify("Datei konnte nicht gelesen werden.", type="negative")
+            return
+
+        # normalize whitespace (allow multi-line files)
+        content = " ".join((raw or "").split()).strip()
         if not content:
             ui.notify("Datei ist leer.", type="warning")
             return
+
+        # Decide whether the file is Morse-only or Text-only.
+        is_morse_only = MorseConverter.is_morse(content)
+
+        if is_morse_only:
+            # Validate Morse tokens early so we can show a popup instead of writing an error bubble.
+            try:
+                MorseConverter.decode(content)
+            except ConversionError as exc:
+                ui.notify(str(exc), type="negative")
+                return
+            self._send(content)
+            return
+
+        # Reject mixed files: letters + standalone morse tokens like "..." or "-.-".
+        has_letter = any(ch.isalpha() for ch in content)
+        has_morse_token = re.search(r"(^|\s)[.-]{1,6}(?=\s|/|$)", content) is not None
+        if has_letter and has_morse_token:
+            ui.notify(
+                "Datei enthält gemischten Inhalt (Text und Morse-Code). Bitte nur eines davon.",
+                type="warning",
+            )
+            return
+
+        # Validate allowed characters for text using the dictionary.
+        invalid = sorted({ch for ch in content.upper() if ch not in MorseConverter.TO_MORSE})
+        if invalid:
+            preview = ", ".join(invalid[:8])
+            more = " …" if len(invalid) > 8 else ""
+            ui.notify(f"Ungültige Zeichen in Datei: {preview}{more}", type="negative")
+            return
+
         self._send(content)
 
     def _show_reference(self) -> None:
-        with ui.dialog() as dialog, ui.card().style("min-width: 480px; max-width: 640px;"):
+        with ui.dialog().props("maximized") as dialog, ui.card().classes("ref-dialog"):
             ui.label("Unterstützte Zeichen").style(
                 "font-size: 1.125rem; font-weight: 600;"
             )
-            with ui.scroll_area().style("max-height: 60vh;"):
-                with ui.element("div").classes("ref-grid"):
-                    for char, code in MorseConverter.reference_table():
-                        with ui.element("div").classes("ref-cell"):
-                            ui.label(char).classes("ref-char")
-                            ui.label(code).classes("ref-morse")
-            with ui.row().classes("justify-end w-full"):
+            with ui.element("div").classes("ref-grid ref-grid--dense"):
+                for char, code in MorseConverter.reference_table():
+                    with ui.element("div").classes("ref-cell"):
+                        ui.label(char).classes("ref-char")
+                        ui.label(code).classes("ref-morse")
+            with ui.row().classes("justify-end w-full ref-actions"):
                 ui.button("Schließen", on_click=dialog.close).props("flat no-caps")
         dialog.open()

@@ -185,9 +185,6 @@ html, body {
 /* Hide everything except the first add-file button */
 .attach-btn .q-uploader__title,
 .attach-btn .q-uploader__subtitle,
-.attach-btn .col,
-.attach-btn [class^="col-"],
-.attach-btn [class*=" col-"],
 .attach-btn .q-uploader__list,
 .attach-btn .q-uploader__dnd { display: none !important; }
 .attach-btn .q-uploader__header-content .q-btn ~ .q-btn { display: none !important; }
@@ -207,17 +204,15 @@ html, body {
 .attach-btn .q-uploader__header-content .q-btn:first-of-type:hover {
     background: #1d4ed8 !important;
 }
-/* Swap the default "+" icon for an attach_file icon via Material Icons ligature */
 .attach-btn .q-uploader__header-content .q-btn:first-of-type .q-icon {
-    font-size: 0 !important;
+    font-size: 0 !important; /* hide original (usually 'add') ligature */
     color: #ffffff !important;
 }
 .attach-btn .q-uploader__header-content .q-btn:first-of-type .q-icon::before {
     content: 'attach_file';
-    font-family: 'Material Icons';
-    font-feature-settings: 'liga';
     font-size: 20px;
     line-height: 1;
+    display: inline-block;
     color: #ffffff;
 }
 .chat-input { padding: 0 !important; }
@@ -259,10 +254,23 @@ html, body {
 .toolbar-btn:hover { background: #f3f4f6 !important; }
 
 /* Reference dialog */
+.ref-dialog {
+    width: 96vw;
+    height: 92vh;
+    max-width: 96vw;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.ref-actions { margin-top: auto; }
 .ref-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 8px;
+}
+.ref-grid--dense {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
 }
 .ref-cell {
     background: #f9fafb;
@@ -272,10 +280,28 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    min-width: 0;
+}
+.ref-grid--dense .ref-cell {
+    padding: 6px 10px;
+    border-radius: 6px;
 }
 .ref-char { font-weight: 700; color: #2563eb; }
 .ref-morse { font-family: 'JetBrains Mono', monospace; color: #4b5563;
     letter-spacing: 2px; font-size: 0.875rem; }
+.ref-grid--dense .ref-morse { letter-spacing: 1.5px; font-size: 0.75rem; }
+
+/* Notifications (ui.notify) */
+.q-notification {
+    font-size: 1.05rem;
+    line-height: 1.3;
+}
+.q-notification__message {
+    padding: 10px 12px;
+}
+.q-notification__caption {
+    font-size: 0.95rem;
+}
 
 </style>
 """
