@@ -4,10 +4,10 @@ from datetime import datetime
 from sqlalchemy import case, select
 from sqlalchemy.orm import Session, joinedload
 
-from app.database import SessionLocal
-from app.models.chat import Chat
-from app.models.message import Message
-from app.services.morse_converter import ConversionError, MorseConverter
+from db.database_manager import DatabaseManager
+from db.models.chat import Chat
+from db.models.message import Message
+from services.morse_converter import ConversionError, MorseConverter
 
 
 class ChatService:
@@ -19,7 +19,7 @@ class ChatService:
 
     @staticmethod
     def _session() -> Session:
-        return SessionLocal()
+        return DatabaseManager.session()
 
     def list_chats(self) -> list[Chat]:
         with self._session() as session:
@@ -30,7 +30,9 @@ class ChatService:
             stmt = (
                 select(Chat)
                 .options(joinedload(Chat.messages))
-                .order_by(Chat.pinned.desc(), sort_key.desc(), Chat.created_at.desc())
+                .order_by(
+                    Chat.pinned.desc(), sort_key.desc(), Chat.created_at.desc()
+                )
             )
             chats = session.execute(stmt).unique().scalars().all()
             session.expunge_all()
@@ -51,7 +53,12 @@ class ChatService:
     def create_chat(self, title: str = "Neuer Chat") -> Chat:
         with self._session() as session:
             now = datetime.now()
-            chat = Chat(title=title, created_at=now, updated_at=now, unpinned_updated_at=now)
+            chat = Chat(
+                title=title,
+                created_at=now,
+                updated_at=now,
+                unpinned_updated_at=now,
+            )
             session.add(chat)
             session.commit()
             session.refresh(chat)
@@ -133,7 +140,9 @@ class ChatService:
             session.add_all([user_msg, bot_msg])
 
             if not chat.messages and not error:
-                chat.title = (cleaned[:30] + "…") if len(cleaned) > 30 else cleaned
+                chat.title = (
+                    (cleaned[:30] + "…") if len(cleaned) > 30 else cleaned
+                )
             now = datetime.now()
             chat.updated_at = now
             # Keep the unpinned history position stable while pinned.

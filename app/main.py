@@ -1,13 +1,23 @@
 from nicegui import ui
 
-from app.database import init_db
-from app.ui.app_layout import register_pages
+from dotenv import load_dotenv
+
+from db.database_manager import DatabaseManager
+from ui.app_layout import register_pages
+
+load_dotenv()
 
 
 def start() -> None:
-    init_db()
+    DatabaseManager.init_db()
     register_pages()
-    ui.run(title="Morse-Code Konverter", port=8080, reload=False, show=False)
+    ui.run(
+        title="Morse-Code Konverter",
+        host="localhost",
+        port=8080,
+        reload=False,
+        show=False,
+    )
 
 
 if __name__ in {"__main__", "__mp_main__"}:

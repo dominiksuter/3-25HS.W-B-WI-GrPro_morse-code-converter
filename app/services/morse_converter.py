@@ -4,15 +4,49 @@ class ConversionError(Exception):
 
 class MorseConverter:
     TO_MORSE: dict[str, str] = {
-        "A": ".-", "B": "-...", "C": "-.-.", "D": "-..", "E": ".", "F": "..-.",
-        "G": "--.", "H": "....", "I": "..", "J": ".---", "K": "-.-", "L": ".-..",
-        "M": "--", "N": "-.", "O": "---", "P": ".--.", "Q": "--.-", "R": ".-.",
-        "S": "...", "T": "-", "U": "..-", "V": "...-", "W": ".--", "X": "-..-",
-        "Y": "-.--", "Z": "--..",
-        "0": "-----", "1": ".----", "2": "..---", "3": "...--", "4": "....-",
-        "5": ".....", "6": "-....", "7": "--...", "8": "---..", "9": "----.",
-        ".": ".-.-.-", ",": "--..--", "?": "..--..", "/": "-..-.", "-": "-....-",
-        "(": "-.--.", ")": "-.--.-",
+        "A": ".-",
+        "B": "-...",
+        "C": "-.-.",
+        "D": "-..",
+        "E": ".",
+        "F": "..-.",
+        "G": "--.",
+        "H": "....",
+        "I": "..",
+        "J": ".---",
+        "K": "-.-",
+        "L": ".-..",
+        "M": "--",
+        "N": "-.",
+        "O": "---",
+        "P": ".--.",
+        "Q": "--.-",
+        "R": ".-.",
+        "S": "...",
+        "T": "-",
+        "U": "..-",
+        "V": "...-",
+        "W": ".--",
+        "X": "-..-",
+        "Y": "-.--",
+        "Z": "--..",
+        "0": "-----",
+        "1": ".----",
+        "2": "..---",
+        "3": "...--",
+        "4": "....-",
+        "5": ".....",
+        "6": "-....",
+        "7": "--...",
+        "8": "---..",
+        "9": "----.",
+        ".": ".-.-.-",
+        ",": "--..--",
+        "?": "..--..",
+        "/": "-..-.",
+        "-": "-....-",
+        "(": "-.--.",
+        ")": "-.--.-",
         " ": "/",
     }
 
@@ -49,7 +83,9 @@ class MorseConverter:
             if code == "":
                 continue
             if code not in cls.TO_TEXT:
-                raise ConversionError(f"'{code}' ist kein gültiger Morse-Buchstabe.")
+                raise ConversionError(
+                    f"'{code}' ist kein gültiger Morse-Buchstabe."
+                )
             decoded.append(cls.TO_TEXT[code])
         return "".join(decoded)
 
@@ -63,5 +99,6 @@ class MorseConverter:
     @classmethod
     def reference_table(cls) -> list[tuple[str, str]]:
         return [
-            ("SPACE" if ch == " " else ch, code) for ch, code in cls.TO_MORSE.items()
+            ("SPACE" if ch == " " else ch, code)
+            for ch, code in cls.TO_MORSE.items()
         ]

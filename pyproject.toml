@@ -7,12 +7,72 @@ requires-python = ">=3.12"
 dependencies = [
     "nicegui>=2.0.0",
     "sqlalchemy>=2.0.0",
+    "python-dotenv>=1.2.1",
 ]
 
 [dependency-groups]
 dev = [
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
     "ruff>=0.13.2",
 ]
 
-[tool.uv]
-package = false
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+minversion = "9.0"
+addopts = [
+    "-p nicegui.testing.user_plugin"
+]
+main_file = "app/main.py"
+
+
+[tool.ruff]
+line-length = 79
+exclude = [
+    "migrations",
+    "build",
+    "dist",
+    "generated",
+    "generated.py",
+    "data",
+    "ui", # Exclude the UI directory from linting
+]
+
+[tool.ruff.lint]
+extend-select = [
+    "F",      # Pyflakes rules
+    "D",      # Options for the pydocstyle plugin
+    "N",      # Options for the pep8-naming plugin
+    # "W",      # PyCodeStyle warnings
+    "E",      # PyCodeStyle errors
+    "I",      # Sort imports properly
+    "UP",     # Warn if certain things can changed due to newer Python versions
+    "C4",     # Catch incorrect use of comprehensions, dict, list, etc
+    "FA",     # Enforce from __future__ import annotations
+    "ISC",    # Good use of string concatenation
+    "ICN",    # Use common import conventions
+    "SIM",    # Common simplification rules
+    "TID",    # Some good import practices
+    "TC",     # Enforce importing certain types in a TYPE_CHECKING block
+    "TD",     # Be diligent with TODO comments
+    "NPY",    # Some numpy-specific things
+    "PYI021", # Docstrings should not be included in stubs
+]
+ignore = [
+    "D417", # Missing argument descriptions in the docstring
+    "D203", # 1 blank line required before class docstring
+    "D213", # Multi-line docstring summary should start at the second line
+    "D100", # Missing docstring in public module
+    "D101", # Missing docstring in public class
+    "D104", # Missing docstring in public package
+    "D107", # Missing docstring in __init__
+    "D200", # One blank line required before function docstring
+    "D212", # Multi-line docstring summary should start at the second line
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "D102",
+    "D103",
+]

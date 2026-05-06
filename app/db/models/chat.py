@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Boolean, DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from db.models.base import Base
 
 if TYPE_CHECKING:
-    from app.models.message import Message
+    from db.models.message import Message
 
 
 class Chat(Base):
@@ -16,10 +16,14 @@ class Chat(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String(120), default="Neuer Chat")
     pinned: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.now
+    )
     # Sort key for the unpinned chat history. This is intentionally NOT updated while a chat is pinned
     # so that removing the pin restores the chat to its previous position.
-    unpinned_updated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    unpinned_updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime, nullable=True
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now, onupdate=datetime.now
     )

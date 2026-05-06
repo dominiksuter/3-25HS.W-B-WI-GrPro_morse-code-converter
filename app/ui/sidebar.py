@@ -1,6 +1,6 @@
 from nicegui import ui
 
-from app.services.chat_service import ChatService
+from services.chat_service import ChatService
 
 
 class Sidebar:

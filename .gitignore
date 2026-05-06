@@ -135,7 +135,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .envrc
 .venv
 env/
@@ -173,7 +172,7 @@ cython_debug/
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+.idea/
 
 # Abstra
 # Abstra is an AI-powered process automation framework.
@@ -186,13 +185,16 @@ cython_debug/
 #  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
 #  and can be added to the global gitignore or merged into this file. However, if you prefer, 
 #  you could uncomment the following to ignore the entire vscode folder
-# .vscode/
+.vscode/
 
 # Ruff stuff:
 .ruff_cache/
 
 # PyPI configuration file
 .pypirc
+
+# NiceGUI
+.nicegui/
 
 # Cursor
 #  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
@@ -206,10 +208,14 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# History / database files
+# History file
 morse_history.json
-morse_chat.db
-morse_chat.db-journal
 
-# Text files used for testing
-test*.txt
+# Text files
+*.txt
+
+# Ignores macOS system files
+.DS_Store
+
+# Ignores the data directory where the database file is stored
+data/
