@@ -71,9 +71,12 @@ html, body {
     border-radius: 4px !important;
 }
 .icon-btn:hover { background: #374151 !important; color: #ffffff !important; }
-.pin-btn { opacity: 0.5; }
-.pin-btn:hover { opacity: 1; }
-.pin-btn.pinned { opacity: 1; color: #f3f4f6 !important; }
+/* Pin button should behave like other row actions: visible on hover (or if pinned/active) */
+.pin-btn { opacity: 0; transition: opacity 0.15s; }
+.chat-row:hover .pin-btn,
+.chat-row.active .pin-btn,
+.pin-btn.pinned { opacity: 1; }
+.pin-btn.pinned { color: #f3f4f6 !important; }
 .sidebar-footer {
     padding: 16px;
     border-top: 1px solid #374151;
