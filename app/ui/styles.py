@@ -143,7 +143,7 @@ html, body {
     position: relative;
 }
 .bubble-morse { background: #f3f4f6; color: #111827; }
-.bubble-text { background: #2563eb; color: #ffffff; }
+.bubble-text { background: #1f2937; color: #ffffff; }
 .bubble-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 .bubble-label { font-size: 0.75rem; opacity: 0.7; margin-bottom: 4px;
     text-transform: uppercase; letter-spacing: 0.05em; }
@@ -198,14 +198,14 @@ html, body {
     min-width: 40px !important;
     min-height: 40px !important;
     border-radius: 50% !important;
-    background: #2563eb !important;
+    background: #1f2937 !important;
     color: #ffffff !important;
     margin: 0 !important;
     padding: 0 !important;
-    box-shadow: 0 2px 4px rgba(37,99,235,0.3) !important;
+    box-shadow: 0 2px 4px rgba(31,41,55,0.3) !important;
 }
 .attach-btn .q-uploader__header-content .q-btn:first-of-type:hover {
-    background: #1d4ed8 !important;
+    background: #374151 !important;
 }
 .attach-btn .q-uploader__header-content .q-btn:first-of-type .q-icon {
     font-size: 0 !important; /* hide original (usually 'add') ligature */
