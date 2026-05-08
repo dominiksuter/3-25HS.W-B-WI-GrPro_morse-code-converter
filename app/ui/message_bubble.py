@@ -4,14 +4,10 @@ from db.models.message import Message
 
 
 class MessageBubble:
-    """Renders a single chat message bubble.
 
-    Layout matches the Figma reference: Morse messages align left with a
-    grey bubble; plain text aligns right with a blue bubble.
-    """
-
-    def __init__(self, message: Message) -> None:
+    def __init__(self, message: Message, is_user: bool = False) -> None:
         self.message = message
+        self.is_user = is_user
         self._render()
 
     def _render(self) -> None:
@@ -19,12 +15,12 @@ class MessageBubble:
         if msg.is_error:
             row_align = "left"
             bubble_class = "bubble bubble-error"
-        elif msg.is_morse:
-            row_align = "left"
-            bubble_class = "bubble bubble-morse"
-        else:
+        elif self.is_user:
             row_align = "right"
             bubble_class = "bubble bubble-text"
+        else:
+            row_align = "left"
+            bubble_class = "bubble bubble-morse"
 
         with ui.element("div").classes(f"bubble-row {row_align}"):
             with ui.element("div").classes(bubble_class):

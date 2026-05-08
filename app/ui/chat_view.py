@@ -47,8 +47,8 @@ class ChatView:
                 self._render_welcome()
                 return
             with ui.element("div").classes("messages-inner"):
-                for msg in self.chat.messages:
-                    MessageBubble(msg)
+                for i, msg in enumerate(self.chat.messages):
+                    MessageBubble(msg, is_user=(i % 2 == 0))
 
     def _render_welcome(self) -> None:
         with ui.element("div").classes("welcome-wrap"):
