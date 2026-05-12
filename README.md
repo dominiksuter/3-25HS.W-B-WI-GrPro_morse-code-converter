@@ -1,27 +1,28 @@
-# 🆘 Morse Code De-/Encoder (Console)
+# 🆘 Morse Code De-/Encoder (Browser App)
 
-This project is intended to:
+![Chat](docs/ui-images/chat.png)
 
-* Practice the complete process from **problem analysis to implementation**
-* Apply basic **Python** programming concepts learned in the Programming Foundations module
-* Demonstrate the use of **console interaction, data validation, and file processing**
-* Produce clean, well-structured, and documented code
-* Prepare students for **teamwork and documentation** in later modules
-* Use this repository as a starting point by importing it into your own GitHub account.
-* Work only within your own copy — do not push to the original template.
-* Commit regularly to track your progress.
+---
+
+This project demonstrates the development of a browser-based application using **NiceGUI**, focusing on clean architecture, data validation, and database persistence with SQLite (managed via SQLAlchemy).
+
+It aims to:
+
+- Cover the full process from **requirements analysis to implementation**
+- Apply advanced **Python** concepts in a web-based application
+- Demonstrate **data validation**, layered architecture, and database persistence
+- Produce clean, maintainable, and well-tested code
+- Support **teamwork and professional documentation**
 
 ###### 
 
-# 📖 Documentation
-
-## 📝 Analysis
+## 📝 Application Requirements
 
 **Problem**
-People are curious about Morse code, but manually encoding and decoding messages is error-prone and tedious. There’s a need for a simple tool that translates between text and Morse code quickly and reliably.
+People are curious about Morse code, but translating messages by hand is tedious and easy to get wrong (spacing, word separators, and unsupported characters). A simple tool is needed that converts **text ⇄ Morse code** quickly, validates input to prevent mistakes, and produces consistent, reliable results.
 
 **Scenario**
-A user wants to encode messages into Morse code to practice or send signals, or decode received Morse code messages. They use this application in a console, inputting either plain text, Morse code, or a text file, and receive the corresponding translation instantly. The program also keeps a history of conversions for reference.
+A user wants to encode messages into Morse code for practice or signaling, or decode received Morse sequences into readable text. They use the application via a chat-like interface, entering either plain text or Morse code (or providing a `.txt` file), and get the translation immediately. The app also stores a conversion history so previous inputs and outputs can be reviewed later.
 
 ## User stories
 
@@ -110,28 +111,12 @@ A user wants to encode messages into Morse code to practice or send signals, or 
 
 ---
 
-### 11. Audio Playback of Morse Code (Optional)  
-#### As a user, I want to hear Morse code from a chat message.  
-**Description:** The system can play audio for Morse code messages in the chat.  
-**Inputs:** Morse code message | `str`  
-**Outputs:** audio playback | `Audio` object  
+## 🧩 Use Cases
 
----
-
-### 12. Voice and Audio Input (Optional)  
-#### As a user, I want to input Morse code via voice or audio file in the chat.  
-**Description:** The system can decode Morse code from a voice message or uploaded audio file and respond with the decoded text as a chat message.  
-**Inputs:** audio input | `Audio` or file | `.wav/.mp3`  
-**Outputs:** decoded text message | `str` 
-
-
-
-
-## Use Case Diagram
 ![Morse Code Use Cases](docs/use_cases.png)
 
-**Use cases**
-## Main Use Cases
+
+### Main Use Cases
 
 - Translate Text (User)
 - Translate Morse (User) 
@@ -155,34 +140,61 @@ A user wants to encode messages into Morse code to practice or send signals, or 
 
 ---
 
-## ✅ Project Requirements
+## 🏛️ Architecture
 
-Each app must meet the following three criteria in order to be accepted:
+![UML Class Diagram](docs/architecture.png)
 
-1. Interactive app (console input)
-2. Data validation (input checking)
-3. File processing (read/write)
+### Layers
+- **UI:** NiceGUI (browser-based interface)
+- **Application logic:** service layer (`ChatService`, `MorseConverter`)
+- **Persistence:** SQLite + SQLAlchemy (models + `DatabaseManager`)
+
+### Design Decisions
+- Layered architecture with a clear separation of concerns
+- Business logic is kept independent from the UI (UI calls services, services handle conversions + persistence)
+- One DB session per service operation (the UI does not manage database sessions)
+
+### Design Patterns Used
+- Layered MVC variant: A UI layer (views), a service layer (application logic), and a persistence layer (database access) keep responsibilities separated and make the code easier to test and maintain.
+- Facade pattern: `DatabaseManager` hides database setup details (engine, sessions, schema creation) so the rest of the application can work with a simple, consistent interface.
 
 ---
 
-### 1. Interactive App (Console Input)
+## 🗄️ Database
 
-The application interacts with the user via the console. Users can:
+The application persists data in a local **SQLite** database (`morse_chat.db`) using **SQLAlchemy**.
 
-* Choose to encode text to Morse code, decode Morse code to text, or process file contents
-* Input text, Morse code, or a path to a `.txt` file
-* View the translation immediately in the console
-* Exit the program
+### Entities
+- `User` (anonymous user id `auid`)
+- `Chat` (chat sessions, pinned state, timestamps)
+- `Message` (content, flags like `is_morse`/`is_error`, timestamp)
 
-```python
-print("\nBitte wähle eine Option:")
-print("1 = Text ➝  Morse")
-print("2 = Morse ➝  Text")
-print("3 = File Content ➝  Text / Morse")
-print("q = Beenden")
-```
+### Relationships
+- One `User` → many `Chat`
+- One `Chat` → many `Message`
 
-Invalid inputs in any mode will **prompt the user again** without returning to the main menu. After an option finishes executing, the program returns to the main menu for further use. Errors are highlighted in **red** in the console using ANSI escape codes.
+---
+
+## ✅ Project Requirements
+
+Each app must meet the following criteria in order to be accepted:
+
+1. Interactive web app using NiceGUI
+2. Data validation in the web app
+3. File processing (read/write)
+4. Database management and persistence (SQLite via SQLAlchemy)
+
+---
+
+### 1. Browser-based App (NiceGUI)
+
+The application runs as a browser-based NiceGUI app. Users can:
+
+* Create and switch between chat sessions (sidebar)
+* Enter **plain text** or **Morse code** in the chat input and receive the converted result as a response message
+* Upload a `.txt` file directly in the chat (content is read and converted)
+* Open a reference table of supported characters
+* Export a chat conversation as a `.json` download
 
 ---
 
@@ -190,27 +202,10 @@ Invalid inputs in any mode will **prompt the user again** without returning to t
 
 The application validates all user input to ensure correctness:
 
-* **Menu validation:** Ensures only valid menu options are accepted.
-* **Empty input handling:** Empty inputs are ignored and the user is prompted again.
-* **Character validation:** Checks if each character or Morse code sequence is valid.
-* **File validation:** Verifies that the file exists and has the correct file extension and size.
-
-Example:
-
-```python
-if not text:
-    print_error("Bitte Text eingeben!")
-```
-
-```python
-if char not in TO_MORSE_DICT:
-    print_error(f"Fehler: '{char}' kann nicht in Morse-Code dargestellt werden!")
-```
-
-```python
-if not file_name.endswith(".txt"):
-    print_error("Nur .txt-Dateien sind erlaubt!")
-```
+* **Empty input handling:** Empty messages are ignored.
+* **Text validation:** Unsupported characters are rejected with a clear error message.
+* **Morse validation:** Invalid or unknown Morse sequences are rejected. Morse input uses spaces between tokens and `/` as word separator.
+* **File validation:** Only `.txt` files are accepted (max. 500 KB). The file must be valid UTF-8 text, non-empty, and must not mix plain text with standalone Morse tokens.
 
 Invalid Morse sequences and unsupported characters are flagged, preventing crashes or incorrect translations.
 Words in Morse code are correctly interpreted using `/` as word separator.
@@ -219,27 +214,16 @@ Words in Morse code are correctly interpreted using `/` as word separator.
 
 ### 3. File Processing
 
-The program supports reading and writing `.txt` files:
+The app supports reading text from `.txt` uploads:
 
-* Users can provide a text file to **encode to Morse** or **decode from Morse**.
-* In addition to showing the translation in the console, the program automatically generates output files using the suffixes `_morse.txt` or `_text.txt` in the source file’s directory (`message.txt` → `message_morse.txt` or `message_text.txt`).
+* The file content is read in the browser app, normalized (whitespace), and then converted as either **text → Morse** or **Morse → text**.
+* For write/export functionality, the user can download the current chat history as a JSON file.
 
-The program also maintains a **JSON conversion history** for successful translations:
+---
 
-* `morse_history.json` stores all sucessful translations with input, output and timestamp.
-* Handles corrupted JSON files gracefully by initializing an empty list.
+### 4. Database management and persistence
 
-Example:
-
-```json
-[
-    {
-        "input": "HELLO WORLD",
-        "output": ".... . .-.. .-.. --- / .-- --- .-. .-.. -..",
-        "timestamp": "2025-11-08T14:57:17"
-    }
-]
-```
+The application persists users, chats, and messages in a local SQLite database (`morse_chat.db`) using SQLAlchemy.
 
 ---
 
@@ -247,45 +231,202 @@ Example:
 
 ### Technology
 
-* Python 3.8+
-* No external libraries required, uses only the Python standard library.
-* Environment: Any IDE or terminal
+* Python 3.x
+* NiceGUI
+* pytest
 
-**Note:** The ANSI escape codes `\033[` used for colored errors may not render correctly in all consoles. Modern terminals like Windows Terminal, PowerShell, macOS Terminal, and Linux terminals generally support them, while older `cmd.exe` may not.
+---
 
+### 📚 Libraries Used
+
+- **nicegui** – UI framework  
+- **sqlalchemy** – database toolkit (SQLite persistence)  
+- **python-dotenv** – configuration  
+- **pytest** – testing  
+- **pytest-asyncio** – async test support  
+- **ruff** – linting/formatting  
+
+---
 
 ### 📂 Repository Structure
 
 ```text
-3-25HS.W-B-WI-GrPro_morse-code-converter/
-├── .gitignore              # files git should ignore
-├── main.py                 # main program logic (console application)
-├── morse_history.json      # JSON file storing conversion history
-└── README.md               # project description and documentation
+3-25HS.W-B-WI-GrPro_morse-code-converter
+├── README.md
+├── app
+│   ├── db
+│   │   ├── __init__.py
+│   │   ├── database_manager.py
+│   │   └── models
+│   ├── main.py
+│   ├── models
+│   ├── services
+│   │   ├── __init__.py
+│   │   ├── chat_service.py
+│   │   └── morse_converter.py
+│   └── ui
+│       ├── __init__.py
+│       ├── app_layout.py
+│       ├── chat_view.py
+│       ├── favicon.png
+│       ├── message_bubble.py
+│       ├── sidebar.py
+│       └── styles.py
+├── docs
+│   ├── ui-images
+│   │   └── wireframe-mockup.jpg
+│   └── use_cases.png
+├── morse_chat.db
+├── pyproject.toml
+└── tests
+    └── test_e2e.py
+
 ```
 
-### How to Run
+### Project Setup
 
-1. Verify Python is installed with a supported version. If needed, follow the official Python documentation for installation:
+1. Verify Python is installed:
 ```bash
-python3 --version
+python --version
 ```
-2. Clone the repository:
+2. Install required dependencies:
 ```bash
-git clone https://github.com/dominiksuter/3-25HS.W-B-WI-GrPro_morse-code-converter.git
+python -m pip install -e .
 ```
-3. Open the repository in your IDE or terminal.
-4. Run the program:
+3. Start the app (from the repository root):
 ```bash
-python3 main.py
+python app/main.py
 ```
-5. Follow the on-screen prompts to encode or decode text, Morse code, and file contents.
+4. Open `http://localhost:8080` in your browser.
 
-### Libraries Used
+5. Create a new chat
+6. Enter text or Morse code and send
+7. Upload a `.txt` file to convert its content
 
-* `json`: For reading and writing the conversion history
-* `pathlib`: For handling file paths
-* `datetime`: For adding timestamps to each conversion entry
+## 🧪 Testing
+
+Run all tests with:
+
+```bash
+python -m pytest -q
+```
+
+**Test mix (10 tests):**
+- 3 Unit tests (`tests/test_unit.py`)
+- 4 Integration tests (`tests/test_integration.py`)
+- 3 DB tests (`tests/test_db.py`)
+
+### Test cases
+
+**TC_001 — Encode text to Morse (SOS)**
+1. Test case ID – TC_001
+2. Test case title/description – Encode "SOS" to Morse code
+3. Preconditions: Project dependencies installed
+4. Test steps: Run `pytest` and execute unit tests
+5. Test data/input: `"SOS"`
+6. Expected result: Output equals `"... --- ..."`
+7. Actual result: _filled during execution_
+8. Status – pass or fail: _filled during execution_
+9. Comments – Additional notes or defect found: -
+
+**TC_002 — Decode Morse to text (SOS)**
+1. Test case ID – TC_002
+2. Test case title/description – Decode "... --- ..." to text
+3. Preconditions: Project dependencies installed
+4. Test steps: Run `pytest` and execute unit tests
+5. Test data/input: `"... --- ..."`
+6. Expected result: Output equals `"SOS"`
+7. Actual result: _filled during execution_
+8. Status – pass or fail: _filled during execution_
+9. Comments – Additional notes or defect found: -
+
+**TC_003 — Reject unsupported text characters**
+1. Test case ID – TC_003
+2. Test case title/description – Encoding fails for unsupported characters
+3. Preconditions: Project dependencies installed
+4. Test steps: Run `pytest` and execute unit tests
+5. Test data/input: `"Hello 😊"`
+6. Expected result: `ConversionError` is raised
+7. Actual result: _filled during execution_
+8. Status – pass or fail: _filled during execution_
+9. Comments – Additional notes or defect found: -
+
+**TC_004 — Create chat and list chats**
+1. Test case ID – TC_004
+2. Test case title/description – New chats are persisted and shown in list
+3. Preconditions: Fresh test database (temporary SQLite file)
+4. Test steps: Create two chats via `ChatService`, call `list_chats`
+5. Test data/input: Titles `"Chat 1"`, `"Chat 2"`
+6. Expected result: Both chat IDs are present in `list_chats()` result
+7. Actual result: _filled during execution_
+8. Status – pass or fail: _filled during execution_
+9. Comments – Additional notes or defect found: -
+
+**TC_005 — Send message creates response**
+1. Test case ID – TC_005
+2. Test case title/description – Sending "HI" stores user message + converted bot message
+3. Preconditions: Fresh test database (temporary SQLite file)
+4. Test steps: Create chat, send message, verify returned messages
+5. Test data/input: `"HI"`
+6. Expected result: Two messages stored; bot content equals `".... .."`
+7. Actual result: _filled during execution_
+8. Status – pass or fail: _filled during execution_
+9. Comments – Additional notes or defect found: -
+
+**TC_006 — Export chat history JSON**
+1. Test case ID – TC_006
+2. Test case title/description – Export returns structured JSON including messages
+3. Preconditions: Fresh test database (temporary SQLite file) and a chat with messages
+4. Test steps: Send a message, call `export_chat_json`, parse JSON
+5. Test data/input: Chat containing a conversion
+6. Expected result: JSON contains chat `id` and two messages
+7. Actual result: _filled during execution_
+8. Status – pass or fail: _filled during execution_
+9. Comments – Additional notes or defect found: -
+
+**TC_007 — Pin/unpin chat**
+1. Test case ID – TC_007
+2. Test case title/description – Pin toggle flips `pinned` state
+3. Preconditions: Fresh test database (temporary SQLite file)
+4. Test steps: Create chat, call `toggle_pin` twice
+5. Test data/input: Chat ID
+6. Expected result: First toggle returns `True`, second returns `False`
+7. Actual result: _filled during execution_
+8. Status – pass or fail: _filled during execution_
+9. Comments – Additional notes or defect found: -
+
+**TC_008 — DB schema creation**
+1. Test case ID – TC_008
+2. Test case title/description – `init_db` creates core tables
+3. Preconditions: Fresh test database (temporary SQLite file)
+4. Test steps: Run `DatabaseManager.init_db()`, inspect tables
+5. Test data/input: -
+6. Expected result: Tables `users`, `chats`, `messages` exist
+7. Actual result: _filled during execution_
+8. Status – pass or fail: _filled during execution_
+9. Comments – Additional notes or defect found: -
+
+**TC_009 — Unique user constraint**
+1. Test case ID – TC_009
+2. Test case title/description – `User.auid` must be unique
+3. Preconditions: Fresh test database (temporary SQLite file)
+4. Test steps: Insert two users with same `auid`
+5. Test data/input: `auid = "same-auid"`
+6. Expected result: Second insert raises `IntegrityError`
+7. Actual result: _filled during execution_
+8. Status – pass or fail: _filled during execution_
+9. Comments – Additional notes or defect found: -
+
+**TC_010 — Delete chat deletes messages**
+1. Test case ID – TC_010
+2. Test case title/description – Deleting a chat removes related messages
+3. Preconditions: Fresh test database (temporary SQLite file) and chat with a message
+4. Test steps: Create user/chat/message, delete chat, query messages
+5. Test data/input: One chat with one message
+6. Expected result: No messages remain for the deleted chat
+7. Actual result: _filled during execution_
+8. Status – pass or fail: _filled during execution_
+9. Comments – Additional notes or defect found: -
 
 ---
 
@@ -293,34 +434,9 @@ python3 main.py
 
 | Name          | Contribution                                                                              |
 | ------------- | ----------------------------------------------------------------------------------------- |
-| Janis Huser   | Implemented file content translation & corresponding error handling                       |
-| Fabian Jäggi  | Implemented Text-to-Morse encoding, Morse-to-Text decoding & corresponding error handling |
-| Dominik Suter | Implemented user prompting, history functionality & code enhancements                     |
-
----
-
-## 🧩 Example Session
-
-```text
-Bitte wähle eine Option:
-1 = Text ➝  Morse
-2 = Morse ➝  Text
-3 = File Content ➝  Text / Morse
-q = Beenden
-
-Deine Wahl: 1
-Gib den Text ein: SOS
-Morse Code: ... --- ...
-
-Deine Wahl: 2
-Gib den Morse Code ein: ... --- ...
-Text: SOS
-
-Deine Wahl: 3
-Dateiname eingeben (nur .txt Files möglich): message.txt
-1 = Text ➝ Morse, 2 = Morse ➝ Text: 1
-Morse-Code gespeichert in: message_morse.txt
-```
+| Janis Huser   | Business logic, `.txt` upload/file processing & documentation                             |
+| Fabian Jäggi  | NiceGUI UI, Morse encoding/decoding & documentation                                       |
+| Dominik Suter | Database layer (SQLite/SQLAlchemy), automated testing & documentation                     |
 
 ---
 
