@@ -1,3 +1,5 @@
+"""Left navigation sidebar for chat management."""
+
 from nicegui import ui
 
 from services import ChatService

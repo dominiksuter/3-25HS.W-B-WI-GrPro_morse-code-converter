@@ -1,6 +1,6 @@
 from nicegui import ui
 
-from db.models.message import Message
+from db.models import Message
 
 
 class MessageBubble:

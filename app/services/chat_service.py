@@ -4,11 +4,10 @@ from datetime import datetime
 from sqlalchemy import case, select
 from sqlalchemy.orm import Session, joinedload
 
-from db.database_manager import DatabaseManager
-from db.models.chat import Chat
-from db.models.message import Message
-from db.models.user import User
-from services.morse_converter import ConversionError, MorseConverter
+from db import DatabaseManager
+from db.models import Chat, Message, User
+
+from .morse_converter import ConversionError, MorseConverter
 
 
 class ChatService:

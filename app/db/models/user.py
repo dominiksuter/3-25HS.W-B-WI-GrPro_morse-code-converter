@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.models.base import Base
+from .base import Base
 
 if TYPE_CHECKING:
-    from db.models.chat import Chat
+    from .chat import Chat
 
 
 class User(Base):

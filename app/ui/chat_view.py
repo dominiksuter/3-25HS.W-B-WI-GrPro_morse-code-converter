@@ -1,11 +1,14 @@
+"""Chat view component for message display and input."""
+
 import re
 from datetime import datetime
 
 from nicegui import ui
 
-from db.models.chat import Chat
+from db.models import Chat
 from services import ChatService, MorseConverter, ConversionError
-from ui.message_bubble import MessageBubble
+
+from .message_bubble import MessageBubble
 
 MAX_FILE_BYTES = 500 * 1024
 

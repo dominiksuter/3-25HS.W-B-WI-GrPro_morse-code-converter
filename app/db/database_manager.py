@@ -1,12 +1,11 @@
 import os
-import uuid
 
 from pathlib import Path
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-from db.models.base import Base
+from .models.base import Base
 
 
 db_env = os.getenv("DBPATH", "./morse_chat.db")

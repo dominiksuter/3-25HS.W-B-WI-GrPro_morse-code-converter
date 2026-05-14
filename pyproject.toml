@@ -24,7 +24,6 @@ minversion = "9.0"
 addopts = [
     "-p nicegui.testing.user_plugin"
 ]
-main_file = "app/main.py"
 
 
 [tool.ruff]

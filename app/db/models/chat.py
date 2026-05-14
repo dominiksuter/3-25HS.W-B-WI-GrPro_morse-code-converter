@@ -5,11 +5,11 @@ import uuid
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.models.base import Base
+from .base import Base
 
 if TYPE_CHECKING:
-    from db.models.message import Message
-    from db.models.user import User
+    from .message import Message
+    from .user import User
 
 
 class Chat(Base):
