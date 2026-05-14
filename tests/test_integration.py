@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 
-
 APP_DIR = Path(__file__).resolve().parents[1] / "app"
 if str(APP_DIR) not in sys.path:
     sys.path.insert(0, str(APP_DIR))
@@ -19,7 +18,6 @@ def fresh_db(tmp_path, monkeypatch):
 
     `db.database_manager` reads DBPATH at import time, so we reload it.
     """
-
     db_file = tmp_path / "morse_chat_test.db"
     monkeypatch.setenv("DBPATH", str(db_file))
 

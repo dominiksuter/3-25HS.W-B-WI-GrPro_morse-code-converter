@@ -1,11 +1,12 @@
+import os
+
 from dotenv import load_dotenv
 
+# Load environment variables early
 load_dotenv(override=True)
 
-import os
-from db import DatabaseManager
-from ui import ViewManager
-
+from db import DatabaseManager  # noqa: E402
+from ui import ViewManager  # noqa: E402
 
 storage_secret = os.getenv(
     "SSECRET",
@@ -14,6 +15,7 @@ storage_secret = os.getenv(
 
 
 def start() -> None:
+    """Initialize database and start the UI application."""
     DatabaseManager.init_db()
     ViewManager(storage_secret=storage_secret, show=False).run()
 

@@ -1,6 +1,6 @@
+import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
-import uuid
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -45,6 +45,12 @@ class Chat(Base):
     user: Mapped["User"] = relationship("User", back_populates="chats")
 
     def to_dict(self) -> dict:
+        """Convert chat to dictionary representation.
+
+        Returns:
+            Dictionary with chat data including all related messages.
+
+        """
         return {
             "id": self.id,
             "user_id": self.user_id,

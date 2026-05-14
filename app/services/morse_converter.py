@@ -56,6 +56,7 @@ class MorseConverter:
 
     @classmethod
     def is_morse(cls, value: str) -> bool:
+        """Check if a string contains only Morse code characters."""
         stripped = value.strip()
         if not stripped:
             return False
@@ -63,6 +64,7 @@ class MorseConverter:
 
     @classmethod
     def encode(cls, text: str) -> str:
+        """Convert text to Morse code."""
         if not text.strip():
             raise ConversionError("Bitte Text eingeben.")
         encoded: list[str] = []
@@ -76,6 +78,7 @@ class MorseConverter:
 
     @classmethod
     def decode(cls, morse: str) -> str:
+        """Convert Morse code to text."""
         if not morse.strip():
             raise ConversionError("Bitte Morse-Code eingeben.")
         decoded: list[str] = []
@@ -98,6 +101,7 @@ class MorseConverter:
 
     @classmethod
     def reference_table(cls) -> list[tuple[str, str]]:
+        """Return all supported character to Morse code mappings."""
         return [
             ("SPACE" if ch == " " else ch, code)
             for ch, code in cls.TO_MORSE.items()

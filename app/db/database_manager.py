@@ -1,12 +1,10 @@
 import os
-
 from pathlib import Path
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from .models.base import Base
-
 
 db_env = os.getenv("DBPATH", "./morse_chat.db")
 DB_PATH = Path(db_env)
@@ -23,10 +21,12 @@ class DatabaseManager:
 
     @classmethod
     def session(cls):
+        """Create and return a new database session."""
         return cls.SessionLocal()
 
     @classmethod
     def init_db(cls) -> None:
+        """Initialize database schema and create all tables."""
         from db.models.chat import Chat  # noqa: F401
         from db.models.message import Message  # noqa: F401
         from db.models.user import User  # noqa: F401

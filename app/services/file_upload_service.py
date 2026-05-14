@@ -3,7 +3,7 @@
 import re
 from typing import Any
 
-from services.morse_converter import MorseConverter, ConversionError
+from services.morse_converter import ConversionError, MorseConverter
 
 
 class FileUploadError(Exception):
@@ -12,7 +12,7 @@ class FileUploadError(Exception):
     pass
 
 
-class InvalidFileFormat(FileUploadError):
+class InvalidFileFormatError(FileUploadError):
     """Raised when file format is not .txt."""
 
     pass
@@ -72,13 +72,14 @@ class FileUploadService:
             Normalized content string.
 
         Raises:
-            InvalidFileFormat: If file is not .txt.
+            InvalidFileFormatError: If file is not .txt.
             FileEncodingError: If file is not UTF-8.
             FileReadError: If file cannot be read.
             EmptyFileError: If file is empty.
             MixedContentError: If file contains mixed text and Morse.
             InvalidCharactersError: If text contains unsupported characters.
             InvalidMorseError: If Morse code is invalid.
+
         """
         FileUploadService._validate_file_format(upload)
         content = await FileUploadService._read_file_content(upload)
@@ -97,9 +98,8 @@ class FileUploadService:
         is_txt_by_name = bool(filename) and filename.lower().endswith(".txt")
         is_txt_by_mime = content_type.startswith("text/") or content_type == ""
 
-        print(is_txt_by_name, is_txt_by_mime, filename, content_type)
         if not is_txt_by_name and not (not filename and is_txt_by_mime):
-            raise InvalidFileFormat(
+            raise InvalidFileFormatError(
                 "Dateiformat nicht erlaubt. Nur .txt-Dateien möglich."
             )
 
@@ -138,6 +138,7 @@ class FileUploadService:
             MixedContentError: If content mixes text and Morse.
             InvalidCharactersError: If text contains unsupported characters.
             InvalidMorseError: If Morse code is invalid.
+
         """
         # Decide whether content is Morse-only or Text-only
         is_morse_only = MorseConverter.is_morse(content)
@@ -156,9 +157,11 @@ class FileUploadService:
             re.search(r"(^|\s)[.-]{1,6}(?=\s|/|$)", content) is not None
         )
         if has_letter and has_morse_token:
-            raise MixedContentError(
-                "Datei enthält gemischten Inhalt (Text und Morse-Code). Bitte nur eines davon."
+            msg = (
+                "Datei enthält gemischten Inhalt (Text und Morse-Code). "
+                "Bitte nur eines davon."
             )
+            raise MixedContentError(msg)
 
         # Validate allowed characters for text
         invalid = sorted(

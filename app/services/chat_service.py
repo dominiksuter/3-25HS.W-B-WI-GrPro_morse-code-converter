@@ -1,11 +1,10 @@
 import json
 from datetime import datetime
 
-from sqlalchemy import case, select
-from sqlalchemy.orm import Session, joinedload
-
 from db import DatabaseManager
 from db.models import Chat, Message, User
+from sqlalchemy import case, select
+from sqlalchemy.orm import Session, joinedload
 
 from .morse_converter import ConversionError, MorseConverter
 
@@ -34,6 +33,7 @@ class ChatService:
         return user.id
 
     def list_chats(self) -> list[Chat]:
+        """Get all chats for current user, ordered by pin and recency."""
         with self._session() as session:
             user_id = self._get_or_create_user_id(session)
             sort_key = case(
@@ -53,6 +53,7 @@ class ChatService:
             return list(chats)
 
     def get_chat(self, chat_id: str) -> Chat | None:
+        """Retrieve a specific chat by ID if it belongs to the current user."""
         with self._session() as session:
             user_id = self._get_or_create_user_id(session)
             stmt = (
@@ -66,6 +67,7 @@ class ChatService:
             return chat
 
     def create_chat(self, title: str = "Neuer Chat") -> Chat:
+        """Create a new chat for the current user."""
         with self._session() as session:
             user_id = self._get_or_create_user_id(session)
             now = datetime.now()
@@ -83,6 +85,7 @@ class ChatService:
             return chat
 
     def delete_chat(self, chat_id: str) -> None:
+        """Delete a chat and all its messages."""
         with self._session() as session:
             user_id = self._get_or_create_user_id(session)
             stmt = select(Chat).where(
@@ -94,6 +97,7 @@ class ChatService:
                 session.commit()
 
     def toggle_pin(self, chat_id: str) -> bool:
+        """Toggle the pinned state of a chat and return the new state."""
         with self._session() as session:
             user_id = self._get_or_create_user_id(session)
             stmt = select(Chat).where(
@@ -109,6 +113,7 @@ class ChatService:
             return chat.pinned
 
     def rename_chat(self, chat_id: str, title: str) -> None:
+        """Rename a chat."""
         with self._session() as session:
             user_id = self._get_or_create_user_id(session)
             stmt = select(Chat).where(
@@ -120,6 +125,7 @@ class ChatService:
                 session.commit()
 
     def clear_messages(self, chat_id: str) -> None:
+        """Delete all messages in a chat."""
         with self._session() as session:
             user_id = self._get_or_create_user_id(session)
             stmt = select(Chat).where(
@@ -133,6 +139,7 @@ class ChatService:
             session.commit()
 
     def delete_message(self, message_id: str) -> None:
+        """Delete a specific message."""
         with self._session() as session:
             user_id = self._get_or_create_user_id(session)
             stmt = (
@@ -197,10 +204,12 @@ class ChatService:
             return [user_msg, bot_msg]
 
     def export_chat_json(self, chat_id: str) -> str | None:
+        """Export a chat as JSON."""
         chat = self.get_chat(chat_id)
         if chat is None:
             return None
         return json.dumps(chat.to_dict(), indent=2, ensure_ascii=False)
 
     def import_text_file(self, chat_id: str, content: str) -> list[Message]:
+        """Send a message to a chat (alias for send_message)."""
         return self.send_message(chat_id, content)

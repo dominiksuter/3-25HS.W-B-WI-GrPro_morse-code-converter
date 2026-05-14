@@ -8,7 +8,7 @@ from db.models import Chat
 from services import ChatService, MorseConverter
 from services.file_upload_service import (
     FileUploadService,
-    InvalidFileFormat,
+    InvalidFileFormatError,
     FileEncodingError,
     FileReadError,
     EmptyFileError,
@@ -153,7 +153,7 @@ class ChatView:
             # Send the content
             self._send(content)
 
-        except InvalidFileFormat as exc:
+        except InvalidFileFormatError as exc:
             ui.notify(str(exc), type="warning")
         except FileEncodingError as exc:
             ui.notify(str(exc), type="negative")
