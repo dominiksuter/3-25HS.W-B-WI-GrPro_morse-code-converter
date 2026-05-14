@@ -29,6 +29,11 @@ def fresh_db(tmp_path, monkeypatch):
 
 
 def test_init_db_creates_expected_tables(fresh_db) -> None:
+    """TC_008: Initialize DB creates expected tables.
+
+    Verifies that calling `DatabaseManager.init_db()` creates the
+    `users`, `chats`, and `messages` tables required by the app.
+    """
     from db.database_manager import DatabaseManager
 
     inspector = inspect(DatabaseManager.engine)
@@ -37,7 +42,12 @@ def test_init_db_creates_expected_tables(fresh_db) -> None:
     assert {"users", "chats", "messages"}.issubset(tables)
 
 
-def test_user_auid_is_unique(fresh_db) -> None:
+def test_user_id_is_unique(fresh_db) -> None:
+    """TC_009: Enforce unique user IDs.
+
+    Ensures the `User.id` primary key enforces uniqueness and that a
+    second insert with the same id raises an IntegrityError.
+    """
     from db.database_manager import DatabaseManager
     from db.models.user import User
 
@@ -51,6 +61,11 @@ def test_user_auid_is_unique(fresh_db) -> None:
 
 
 def test_delete_chat_deletes_related_messages(fresh_db) -> None:
+    """TC_010: Cascade delete chat -> messages.
+
+    Confirms that deleting a `Chat` also removes its related
+    `Message` rows from the database (cascade behavior).
+    """
     from db.database_manager import DatabaseManager
     from db.models.chat import Chat
     from db.models.message import Message

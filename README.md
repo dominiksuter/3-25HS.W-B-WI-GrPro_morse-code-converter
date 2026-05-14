@@ -426,10 +426,10 @@ python -m pytest -q
 
 **TC_009 — Unique user constraint**
 1. Test case ID – TC_009
-2. Test case title/description – `User.auid` must be unique
+2. Test case title/description – `User.id` must be unique
 3. Preconditions: Fresh test database (temporary SQLite file)
-4. Test steps: Insert two users with same `auid`
-5. Test data/input: `auid = "same-auid"`
+4. Test steps: Insert two users with same `id`
+5. Test data/input: `id = "same-id"`
 6. Expected result: Second insert raises `IntegrityError`
 7. Actual result: _filled during execution_
 8. Status – pass or fail: _filled during execution_
@@ -450,11 +450,11 @@ python -m pytest -q
 
 ## 👥 Team & Contributions
 
-| Name          | Contribution                                                                              |
-| ------------- | ----------------------------------------------------------------------------------------- |
-| Janis Huser   | Business logic, `.txt` upload/file processing & documentation                             |
-| Fabian Jäggi  | NiceGUI UI, Morse encoding/decoding & documentation                                       |
-| Dominik Suter | Database layer (SQLite/SQLAlchemy), automated testing & documentation                     |
+| Name          | Contribution                                                                                               |
+| ------------- | ---------------------------------------------------------------------------------------------------------- |
+| Janis Huser   | Database layer (SQLite/SQLAlchemy), Morse encoding/decoding, `.txt` upload/file processing & documentation |
+| Fabian Jäggi  | NiceGUI UI, chat functions, styling & documentation                                                        |
+| Dominik Suter | Business logic, app structure & documentation                                                              |
 
 ---
 

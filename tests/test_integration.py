@@ -37,6 +37,11 @@ def fresh_db(tmp_path, monkeypatch):
 
 
 def test_create_chat_and_list_chats(fresh_db) -> None:
+    """TC_004: Create chat and list chats.
+
+    Verifies that newly created chats are persisted and returned by
+    `list_chats` for the current user.
+    """
     from services.chat_service import ChatService
 
     service = ChatService(user_auid="test-id")
@@ -50,6 +55,11 @@ def test_create_chat_and_list_chats(fresh_db) -> None:
 
 
 def test_send_message_creates_user_and_two_messages(fresh_db) -> None:
+    """TC_005: Send message creates user and two messages.
+
+    Ensures that sending a text message results in a user message and
+    a bot response message being persisted and returned.
+    """
     from services.chat_service import ChatService
 
     service = ChatService(user_auid="test-id")
@@ -68,6 +78,11 @@ def test_send_message_creates_user_and_two_messages(fresh_db) -> None:
 
 
 def test_export_chat_json_contains_messages(fresh_db) -> None:
+    """TC_006: Export chat history JSON.
+
+    Verifies that exporting a chat returns a JSON payload containing
+    the chat id and the expected messages.
+    """
     from services.chat_service import ChatService
 
     service = ChatService(user_auid="test-id")
@@ -83,6 +98,11 @@ def test_export_chat_json_contains_messages(fresh_db) -> None:
 
 
 def test_toggle_pin_toggles_state(fresh_db) -> None:
+    """TC_007: Toggle pin state for a chat (chat management).
+
+    Confirms that toggling the pin state correctly flips between
+    pinned and unpinned.
+    """
     from services.chat_service import ChatService
 
     service = ChatService(user_auid="test-id")
