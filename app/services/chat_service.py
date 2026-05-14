@@ -24,11 +24,11 @@ class ChatService:
     def _session() -> Session:
         return DatabaseManager.session()
 
-    def _get_or_create_user_id(self, session: Session) -> int:
-        stmt = select(User).where(User.auid == self.user_auid)
+    def _get_or_create_user_id(self, session: Session) -> str:
+        stmt = select(User).where(User.id == self.user_auid)
         user = session.execute(stmt).scalar_one_or_none()
         if user is None:
-            user = User(auid=self.user_auid)
+            user = User(id=self.user_auid)
             session.add(user)
             session.flush()
         return user.id
@@ -38,7 +38,7 @@ class ChatService:
             user_id = self._get_or_create_user_id(session)
             sort_key = case(
                 (Chat.pinned.is_(True), Chat.updated_at),
-                else_=Chat.unpinned_updated_at,
+                else_=Chat.unpinned_at,
             )
             stmt = (
                 select(Chat)
@@ -74,7 +74,7 @@ class ChatService:
                 title=title,
                 created_at=now,
                 updated_at=now,
-                unpinned_updated_at=now,
+                unpinned_at=now,
             )
             session.add(chat)
             session.commit()
@@ -102,8 +102,8 @@ class ChatService:
             chat = session.execute(stmt).scalar_one_or_none()
             if chat is None:
                 return False
-            if chat.unpinned_updated_at is None:
-                chat.unpinned_updated_at = chat.updated_at
+            if chat.unpinned_at is None:
+                chat.unpinned_at = chat.updated_at
             chat.pinned = not chat.pinned
             session.commit()
             return chat.pinned
@@ -188,9 +188,7 @@ class ChatService:
                 )
             now = datetime.now()
             chat.updated_at = now
-            # Keep the unpinned history position stable while pinned.
-            if not chat.pinned:
-                chat.unpinned_updated_at = now
+            chat.unpinned_at = now
 
             session.commit()
             session.refresh(user_msg)

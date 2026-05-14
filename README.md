@@ -164,10 +164,12 @@ A user wants to encode messages into Morse code for practice or signaling, or de
 
 The application persists data in a local **SQLite** database (`morse_chat.db`) using **SQLAlchemy**.
 
+![UML Class Diagram](docs/erd.png)
+
 ### Entities
-- `User` (anonymous user id `auid`)
+- `User` (reflects an anonymous user using browser sessions)
 - `Chat` (chat sessions, pinned state, timestamps)
-- `Message` (content, flags like `is_morse`/`is_error`, timestamp)
+- `Message` (either morse, text or error)
 
 ### Relationships
 - One `User` → many `Chat`

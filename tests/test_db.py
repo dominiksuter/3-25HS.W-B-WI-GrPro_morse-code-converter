@@ -43,10 +43,10 @@ def test_user_auid_is_unique(fresh_db) -> None:
     from db.models.user import User
 
     with DatabaseManager.session() as session:
-        session.add(User(auid="same-auid"))
+        session.add(User(id="same-id"))
         session.commit()
 
-        session.add(User(auid="same-auid"))
+        session.add(User(id="same-id"))
         with pytest.raises(IntegrityError):
             session.commit()
 
@@ -58,7 +58,7 @@ def test_delete_chat_deletes_related_messages(fresh_db) -> None:
     from db.models.user import User
 
     with DatabaseManager.session() as session:
-        user = User(auid="test-auid")
+        user = User(id="test-id")
         chat = Chat(title="Test")
         chat.user = user
         chat.messages.append(Message(content="HI", is_morse=False))

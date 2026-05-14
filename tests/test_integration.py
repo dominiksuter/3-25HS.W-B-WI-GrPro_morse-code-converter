@@ -41,7 +41,7 @@ def fresh_db(tmp_path, monkeypatch):
 def test_create_chat_and_list_chats(fresh_db) -> None:
     from services.chat_service import ChatService
 
-    service = ChatService(user_auid="test-auid")
+    service = ChatService(user_auid="test-id")
     c1 = service.create_chat(title="Chat 1")
     c2 = service.create_chat(title="Chat 2")
 
@@ -54,7 +54,7 @@ def test_create_chat_and_list_chats(fresh_db) -> None:
 def test_send_message_creates_user_and_two_messages(fresh_db) -> None:
     from services.chat_service import ChatService
 
-    service = ChatService(user_auid="test-auid")
+    service = ChatService(user_auid="test-id")
     chat = service.create_chat()
 
     messages = service.send_message(chat.id, "HI")
@@ -72,7 +72,7 @@ def test_send_message_creates_user_and_two_messages(fresh_db) -> None:
 def test_export_chat_json_contains_messages(fresh_db) -> None:
     from services.chat_service import ChatService
 
-    service = ChatService(user_auid="test-auid")
+    service = ChatService(user_auid="test-id")
     chat = service.create_chat()
     service.send_message(chat.id, "SOS")
 
@@ -87,7 +87,7 @@ def test_export_chat_json_contains_messages(fresh_db) -> None:
 def test_toggle_pin_toggles_state(fresh_db) -> None:
     from services.chat_service import ChatService
 
-    service = ChatService(user_auid="test-auid")
+    service = ChatService(user_auid="test-id")
     chat = service.create_chat()
 
     assert service.toggle_pin(chat.id) is True
