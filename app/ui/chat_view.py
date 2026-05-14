@@ -1,16 +1,23 @@
 """Chat view component for message display and input."""
 
-import re
 from datetime import datetime
 
 from nicegui import ui
 
 from db.models import Chat
-from services import ChatService, MorseConverter, ConversionError
+from services import ChatService, MorseConverter
+from services.file_upload_service import (
+    FileUploadService,
+    InvalidFileFormat,
+    FileEncodingError,
+    FileReadError,
+    EmptyFileError,
+    MixedContentError,
+    InvalidCharactersError,
+    InvalidMorseError,
+)
 
 from .message_bubble import MessageBubble
-
-MAX_FILE_BYTES = 500 * 1024
 
 
 class ChatView:
@@ -76,11 +83,11 @@ class ChatView:
                 ui.upload(
                     label="",
                     auto_upload=True,
-                    max_file_size=MAX_FILE_BYTES,
+                    max_file_size=FileUploadService.MAX_FILE_SIZE_BYTES,
                     on_upload=self._handle_upload,
                     on_rejected=self._handle_upload_rejected,
                 ).props('accept=".txt" flat dense').classes("attach-btn").tooltip(
-                    "Textdatei hochladen (.txt, max. 500 KB)"
+                    f"Textdatei hochladen (.txt, max. {FileUploadService.MAX_FILE_SIZE_KILOBYTES} KB)"
                 )
 
                 self.input_box = (
@@ -129,72 +136,37 @@ class ChatView:
 
     def _handle_upload_rejected(self, event) -> None:
         ui.notify(
-            "Dateiformat nicht erlaubt. Nur .txt-Dateien möglich.",
+            f"Datei ist zu groß. Maximal {FileUploadService.MAX_FILE_SIZE_KILOBYTES} KB erlaubt.",
             type="warning",
         )
 
     async def _handle_upload(self, event) -> None:
         upload = getattr(event, "file", None)
-        filename = (getattr(upload, "name", "") or "").strip()
-        content_type = (getattr(upload, "content_type", "") or "").strip().lower()
-
-        # Enforce file type: allow only .txt; fall back to MIME type if name is missing.
-        is_txt_by_name = bool(filename) and filename.lower().endswith(".txt")
-        is_txt_by_mime = content_type.startswith("text/") or content_type == ""
-        if not is_txt_by_name and not (not filename and is_txt_by_mime):
-            ui.notify(
-                "Dateiformat nicht erlaubt. Nur .txt-Dateien möglich.",
-                type="warning",
-            )
-            return
 
         try:
-            raw = await upload.text(encoding="utf-8")
-        except UnicodeDecodeError:
-            ui.notify("Datei ist keine gültige UTF-8 Textdatei.", type="negative")
-            return
-        except Exception:
-            ui.notify("Datei konnte nicht gelesen werden.", type="negative")
-            return
+            # Process the file (validate format, read content)
+            content = await FileUploadService.process_upload(upload)
 
-        # normalize whitespace (allow multi-line files)
-        content = " ".join((raw or "").split()).strip()
-        if not content:
-            ui.notify("Datei ist leer.", type="warning")
-            return
+            # Validate content (check for mixed content, invalid characters, etc.)
+            content = FileUploadService.validate_content(content)
 
-        # Decide whether the file is Morse-only or Text-only.
-        is_morse_only = MorseConverter.is_morse(content)
-
-        if is_morse_only:
-            # Validate Morse tokens early so we can show a popup instead of writing an error bubble.
-            try:
-                MorseConverter.decode(content)
-            except ConversionError as exc:
-                ui.notify(str(exc), type="negative")
-                return
+            # Send the content
             self._send(content)
-            return
 
-        # Reject mixed files: letters + standalone morse tokens like "..." or "-.-".
-        has_letter = any(ch.isalpha() for ch in content)
-        has_morse_token = re.search(r"(^|\s)[.-]{1,6}(?=\s|/|$)", content) is not None
-        if has_letter and has_morse_token:
-            ui.notify(
-                "Datei enthält gemischten Inhalt (Text und Morse-Code). Bitte nur eines davon.",
-                type="warning",
-            )
-            return
-
-        # Validate allowed characters for text using the dictionary.
-        invalid = sorted({ch for ch in content.upper() if ch not in MorseConverter.TO_MORSE})
-        if invalid:
-            preview = ", ".join(invalid[:8])
-            more = " …" if len(invalid) > 8 else ""
-            ui.notify(f"Ungültige Zeichen in Datei: {preview}{more}", type="negative")
-            return
-
-        self._send(content)
+        except InvalidFileFormat as exc:
+            ui.notify(str(exc), type="warning")
+        except FileEncodingError as exc:
+            ui.notify(str(exc), type="negative")
+        except FileReadError as exc:
+            ui.notify(str(exc), type="negative")
+        except EmptyFileError as exc:
+            ui.notify(str(exc), type="warning")
+        except MixedContentError as exc:
+            ui.notify(str(exc), type="warning")
+        except InvalidCharactersError as exc:
+            ui.notify(str(exc), type="negative")
+        except InvalidMorseError as exc:
+            ui.notify(str(exc), type="negative")
 
     def _show_reference(self) -> None:
         with ui.dialog().props("maximized") as dialog, ui.card().classes("ref-dialog"):
