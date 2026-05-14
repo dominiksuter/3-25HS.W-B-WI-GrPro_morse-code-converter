@@ -255,33 +255,49 @@ The application persists users, chats, and messages in a local SQLite database (
 ```text
 3-25HS.W-B-WI-GrPro_morse-code-converter
 ├── README.md
+├── .env
+├── .gitignore
+├── .python-version
+├── pyproject.toml
+├── favicon.png
 ├── app
+│   ├── main.py
 │   ├── db
 │   │   ├── __init__.py
 │   │   ├── database_manager.py
 │   │   └── models
-│   ├── main.py
-│   ├── models
-│   ├── services
-│   │   ├── __init__.py
-│   │   ├── chat_service.py
-│   │   └── morse_converter.py
+│   │       ├── __init__.py
+│   │       ├── base.py
+│   │       ├── chat.py
+│   │       ├── message.py
+│   │       └── user.py
+│   └── services
+│       ├── __init__.py
+│       ├── chat_service.py
+│       ├── file_upload_service.py
+│       ├── morse_converter.py
+│       └── user_manager.py
 │   └── ui
 │       ├── __init__.py
 │       ├── app_layout.py
 │       ├── chat_view.py
-│       ├── favicon.png
 │       ├── message_bubble.py
 │       ├── sidebar.py
-│       └── styles.py
+│       ├── styles.py
+│       └── view_manager.py
+├── data
+│   ├── morse_chat.db
 ├── docs
-│   ├── ui-images
-│   │   └── wireframe-mockup.jpg
-│   └── use_cases.png
-├── morse_chat.db
-├── pyproject.toml
+│   ├── architecture.png
+│   ├── erd.png
+│   ├── use_cases.png
+│   └── ui-images
+│       ├── chat.png
+│       └── wireframe-mockup.jpg
 └── tests
-    └── test_e2e.py
+    ├── test_db.py
+    ├── test_integration.py
+    └── test_unit.py
 
 ```
 
