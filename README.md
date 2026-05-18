@@ -207,7 +207,7 @@ The application validates all user input to ensure correctness:
 * **Empty input handling:** Empty messages are ignored.
 * **Text validation:** Unsupported characters are rejected with a clear error message.
 * **Morse validation:** Invalid or unknown Morse sequences are rejected. Morse input uses spaces between tokens and `/` as word separator.
-* **File validation:** Only `.txt` files are accepted (max. 500 KB). The file must be valid UTF-8 text, non-empty, and must not mix plain text with standalone Morse tokens.
+* **File validation:** Only `.txt` files are accepted (max. 5 KB). The file must be valid UTF-8 text, non-empty, and must not mix plain text with standalone Morse tokens.
 
 Invalid Morse sequences and unsupported characters are flagged, preventing crashes or incorrect translations.
 Words in Morse code are correctly interpreted using `/` as word separator.
@@ -311,9 +311,9 @@ python --version
 ```bash
 python -m pip install -e .
 ```
-3. Start the app (from the repository root):
+3. Start the app (from the `app` directory):
 ```bash
-python app/main.py
+cd app && python main.py
 ```
 4. Open `http://localhost:8080` in your browser.
 
