@@ -1,7 +1,6 @@
 """Page registration and layout rendering."""
 
 from nicegui import ui
-
 from services import ChatService, UserManager
 
 from .chat_view import ChatView

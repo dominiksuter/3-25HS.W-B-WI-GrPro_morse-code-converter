@@ -1,10 +1,8 @@
-from nicegui import ui
-
 from db.models import Message
+from nicegui import ui
 
 
 class MessageBubble:
-
     def __init__(self, message: Message, is_user: bool = False) -> None:
         self.message = message
         self.is_user = is_user
@@ -22,11 +20,17 @@ class MessageBubble:
             row_align = "left"
             bubble_class = "bubble bubble-morse"
 
-        with ui.element("div").classes(f"bubble-row {row_align}"):
-            with ui.element("div").classes(bubble_class):
-                label = "Fehler" if msg.is_error else (
-                    "Morse-Code" if msg.is_morse else "Text"
-                )
-                ui.label(label).classes("bubble-label")
-                content_class = "bubble-content morse" if msg.is_morse else "bubble-content"
-                ui.label(msg.content).classes(content_class)
+        with (
+            ui.element("div").classes(f"bubble-row {row_align}"),
+            ui.element("div").classes(bubble_class),
+        ):
+            label = (
+                "Fehler"
+                if msg.is_error
+                else ("Morse-Code" if msg.is_morse else "Text")
+            )
+            ui.label(label).classes("bubble-label")
+            content_class = (
+                "bubble-content morse" if msg.is_morse else "bubble-content"
+            )
+            ui.label(msg.content).classes(content_class)

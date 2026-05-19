@@ -2,19 +2,18 @@
 
 from datetime import datetime
 
-from nicegui import ui
-
 from db.models import Chat
+from nicegui import ui
 from services import ChatService, MorseConverter
 from services.file_upload_service import (
-    FileUploadService,
-    InvalidFileFormatError,
+    EmptyFileError,
     FileEncodingError,
     FileReadError,
-    EmptyFileError,
-    MixedContentError,
+    FileUploadService,
     InvalidCharactersError,
+    InvalidFileFormatError,
     InvalidMorseError,
+    MixedContentError,
 )
 
 from .message_bubble import MessageBubble
@@ -40,11 +39,14 @@ class ChatView:
             with ui.element("div"):
                 ui.html("<h1>Morse-Code Konverter</h1>")
                 ui.html(
-                    "<p>Text automatisch in Morse-Code umwandeln und umgekehrt</p>"
+                    "<p>Text automatisch in Morse-Code umwandeln "
+                    "und umgekehrt</p>"
                 )
             with ui.row().classes("items-center gap-2"):
                 ui.button(
-                    "Zeichentabelle", icon="grid_on", on_click=self._show_reference
+                    "Zeichentabelle",
+                    icon="grid_on",
+                    on_click=self._show_reference,
                 ).props("flat no-caps").classes("toolbar-btn")
                 if self.chat is not None and self.chat.messages:
                     ui.button(
@@ -61,46 +63,56 @@ class ChatView:
                     MessageBubble(msg, is_user=(i % 2 == 0))
 
     def _render_welcome(self) -> None:
-        with ui.element("div").classes("welcome-wrap"):
-            with ui.element("div").classes("welcome-card"):
-                ui.html("<div class='welcome-sos'>• • • − − − • • •</div>")
-                ui.html("<h2 class='welcome-title'>Willkommen beim Morse-Code Konverter</h2>")
-                ui.html(
-                    "<p class='welcome-text'>Geben Sie Text oder Morse-Code ein, "
-                    "um eine Konvertierung zu starten.</p>"
-                )
-                ui.html(
-                    "<div class='welcome-hint'>"
-                    "<p>• Punkt und − Strich für Morse-Code</p>"
-                    "<p>• Leerzeichen zwischen Zeichen</p>"
-                    "<p>• / für Wortabstand</p>"
-                    "</div>"
-                )
+        with (
+            ui.element("div").classes("welcome-wrap"),
+            ui.element("div").classes("welcome-card"),
+        ):
+            ui.html("<div class='welcome-sos'>• • • − − − • • •</div>")
+            ui.html(
+                "<h2 class='welcome-title'>"
+                "Willkommen beim Morse-Code Konverter"
+                "</h2>"
+            )
+            ui.html(
+                "<p class='welcome-text'>"
+                "Geben Sie Text oder Morse-Code ein, "
+                "um eine Konvertierung zu starten.</p>"
+            )
+            ui.html(
+                "<div class='welcome-hint'>"
+                "<p>• Punkt und − Strich für Morse-Code</p>"
+                "<p>• Leerzeichen zwischen Zeichen</p>"
+                "<p>• / für Wortabstand</p>"
+                "</div>"
+            )
 
     def _render_input_bar(self) -> None:
-        with ui.element("div").classes("input-bar"):
-            with ui.element("div").classes("input-inner"):
-                ui.upload(
-                    label="",
-                    auto_upload=True,
-                    max_file_size=FileUploadService.MAX_FILE_SIZE_BYTES,
-                    on_upload=self._handle_upload,
-                    on_rejected=self._handle_upload_rejected,
-                ).props('accept=".txt" flat dense').classes("attach-btn").tooltip(
-                    f"Textdatei hochladen (.txt, max. {FileUploadService.MAX_FILE_SIZE_KILOBYTES} KB)"
-                )
+        with (
+            ui.element("div").classes("input-bar"),
+            ui.element("div").classes("input-inner"),
+        ):
+            ui.upload(
+                label="",
+                auto_upload=True,
+                max_file_size=FileUploadService.MAX_FILE_SIZE_BYTES,
+                on_upload=self._handle_upload,
+                on_rejected=self._handle_upload_rejected,
+            ).props('accept=".txt" flat dense').classes("attach-btn").tooltip(
+                "Textdatei hochladen (.txt, max. "
+                f"{FileUploadService.MAX_FILE_SIZE_KILOBYTES} KB)"
+            )
 
-                self.input_box = (
-                    ui.input(placeholder="Text oder Morse-Code eingeben…")
-                    .props("borderless dense")
-                    .classes("chat-input flex-1")
-                    .on("keydown.enter", self._on_send)
-                )
-                self.input_box.bind_value(self, "input_value")
+            self.input_box = (
+                ui.input(placeholder="Text oder Morse-Code eingeben…")
+                .props("borderless dense")
+                .classes("chat-input flex-1")
+                .on("keydown.enter", self._on_send)
+            )
+            self.input_box.bind_value(self, "input_value")
 
-                ui.button("Senden", icon="send", on_click=self._on_send).props(
-                    "unelevated no-caps"
-                ).classes("send-btn")
+            ui.button("Senden", icon="send", on_click=self._on_send).props(
+                "unelevated no-caps"
+            ).classes("send-btn")
 
     def _on_send(self) -> None:
         value = (self.input_value or "").strip()
@@ -136,7 +148,8 @@ class ChatView:
 
     def _handle_upload_rejected(self, event) -> None:
         ui.notify(
-            f"Datei ist zu groß. Maximal {FileUploadService.MAX_FILE_SIZE_KILOBYTES} KB erlaubt.",
+            "Datei ist zu groß. Maximal "
+            f"{FileUploadService.MAX_FILE_SIZE_KILOBYTES} KB erlaubt.",
             type="warning",
         )
 
@@ -147,7 +160,7 @@ class ChatView:
             # Process the file (validate format, read content)
             content = await FileUploadService.process_upload(upload)
 
-            # Validate content (check for mixed content, invalid characters, etc.)
+            # Validate content (mixed content, invalid characters, etc.)
             content = FileUploadService.validate_content(content)
 
             # Send the content
@@ -169,7 +182,10 @@ class ChatView:
             ui.notify(str(exc), type="negative")
 
     def _show_reference(self) -> None:
-        with ui.dialog().props("maximized") as dialog, ui.card().classes("ref-dialog"):
+        with (
+            ui.dialog().props("maximized") as dialog,
+            ui.card().classes("ref-dialog"),
+        ):
             ui.label("Unterstützte Zeichen").style(
                 "font-size: 1.125rem; font-weight: 600;"
             )
@@ -179,5 +195,7 @@ class ChatView:
                         ui.label(char).classes("ref-char")
                         ui.label(code).classes("ref-morse")
             with ui.row().classes("justify-end w-full ref-actions"):
-                ui.button("Schließen", on_click=dialog.close).props("flat no-caps")
+                ui.button("Schließen", on_click=dialog.close).props(
+                    "flat no-caps"
+                )
         dialog.open()

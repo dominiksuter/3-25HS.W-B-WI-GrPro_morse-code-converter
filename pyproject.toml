@@ -35,7 +35,7 @@ exclude = [
     "generated",
     "generated.py",
     "data",
-    "ui", # Exclude the UI directory from linting
+    "styles.py",
 ]
 
 [tool.ruff.lint]
