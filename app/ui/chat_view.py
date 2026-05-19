@@ -6,17 +6,8 @@ from db.models import Chat
 from nicegui import ui
 from services import ChatService, MorseConverter
 from services.file_upload_service import (
-<<<<<<< Updated upstream
     EmptyFileError,
-    FileEncodingError,
-    FileReadError,
     FileUploadService,
-=======
-    FileUploadService,
-    InvalidFileFormatError,
-    EmptyFileError,
-    MixedContentError,
->>>>>>> Stashed changes
     InvalidCharactersError,
     InvalidFileFormatError,
     InvalidMorseError,
@@ -175,14 +166,11 @@ class ChatView:
             ui.notify("Datei konnte nicht gelesen werden.", type="negative")
             return
 
-<<<<<<< Updated upstream
             # Validate content (mixed content, invalid characters, etc.)
-=======
         try:
             content = FileUploadService.process_upload(
                 upload.name, upload.content_type, raw_text
             )
->>>>>>> Stashed changes
             content = FileUploadService.validate_content(content)
             self._send(content)
 
