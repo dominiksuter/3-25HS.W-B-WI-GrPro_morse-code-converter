@@ -1,7 +1,6 @@
 """File upload handling and validation service."""
 
 import re
-from typing import Any
 
 from services.morse_converter import ConversionError, MorseConverter
 
@@ -14,18 +13,6 @@ class FileUploadError(Exception):
 
 class InvalidFileFormatError(FileUploadError):
     """Raised when file format is not .txt."""
-
-    pass
-
-
-class FileEncodingError(FileUploadError):
-    """Raised when file is not valid UTF-8."""
-
-    pass
-
-
-class FileReadError(FileUploadError):
-    """Raised when file cannot be read."""
 
     pass
 
@@ -61,61 +48,44 @@ class FileUploadService:
     MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_KILOBYTES * 1024
 
     @staticmethod
-    async def process_upload(upload: Any) -> str:
+    def process_upload(filename: str, content_type: str, raw_text: str) -> str:
         """
-        Process an uploaded file and return its normalized content.
+        Validate filename/content-type and normalize the raw text.
+
+        The caller is responsible for reading the file (NiceGUI's FileUpload
+        API is async-only); this service stays sync.
 
         Args:
-            upload: The uploaded file object from NiceGUI.
+            filename: Original filename from the upload.
+            content_type: MIME type from the upload.
+            raw_text: Already-decoded UTF-8 file content.
 
         Returns:
-            Normalized content string.
+            Normalized content string (whitespace-collapsed).
 
         Raises:
             InvalidFileFormatError: If file is not .txt.
-            FileEncodingError: If file is not UTF-8.
-            FileReadError: If file cannot be read.
-            EmptyFileError: If file is empty.
-            MixedContentError: If file contains mixed text and Morse.
-            InvalidCharactersError: If text contains unsupported characters.
-            InvalidMorseError: If Morse code is invalid.
+            EmptyFileError: If file is empty after normalization.
 
         """
-        FileUploadService._validate_file_format(upload)
-        content = await FileUploadService._read_file_content(upload)
+        FileUploadService._validate_file_format(filename, content_type)
+        content = " ".join((raw_text or "").split()).strip()
         FileUploadService._validate_empty(content)
-
         return content
 
     @staticmethod
-    def _validate_file_format(upload: Any) -> None:
+    def _validate_file_format(filename: str, content_type: str) -> None:
         """Validate that uploaded file is a .txt file."""
-        filename = (getattr(upload, "name", "") or "").strip()
-        content_type = (
-            (getattr(upload, "content_type", "") or "").strip().lower()
-        )
+        name = (filename or "").strip()
+        mime = (content_type or "").strip().lower()
 
-        is_txt_by_name = bool(filename) and filename.lower().endswith(".txt")
-        is_txt_by_mime = content_type.startswith("text/") or content_type == ""
+        is_txt_by_name = bool(name) and name.lower().endswith(".txt")
+        is_txt_by_mime = mime.startswith("text/") or mime == ""
 
-        if not is_txt_by_name and not (not filename and is_txt_by_mime):
+        if not is_txt_by_name and not (not name and is_txt_by_mime):
             raise InvalidFileFormatError(
                 "Dateiformat nicht erlaubt. Nur .txt-Dateien möglich."
             )
-
-    @staticmethod
-    async def _read_file_content(upload: Any) -> str:
-        """Read file content with UTF-8 encoding."""
-        try:
-            raw = await upload.text(encoding="utf-8")
-        except UnicodeDecodeError:
-            raise FileEncodingError("Datei ist keine gültige UTF-8 Textdatei.")
-        except Exception:
-            raise FileReadError("Datei konnte nicht gelesen werden.")
-
-        # Normalize whitespace (allow multi-line files)
-        content = " ".join((raw or "").split()).strip()
-        return content
 
     @staticmethod
     def _validate_empty(content: str) -> None:

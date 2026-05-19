@@ -1,8 +1,6 @@
 from .chat_service import ChatService
 from .file_upload_service import (
     EmptyFileError,
-    FileEncodingError,
-    FileReadError,
     FileUploadError,
     FileUploadService,
     InvalidCharactersError,
@@ -17,8 +15,6 @@ __all__ = [
     "ChatService",
     "FileUploadService",
     "InvalidFileFormatError",
-    "FileEncodingError",
-    "FileReadError",
     "EmptyFileError",
     "MixedContentError",
     "InvalidCharactersError",

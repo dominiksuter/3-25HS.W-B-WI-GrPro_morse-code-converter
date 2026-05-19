@@ -6,10 +6,17 @@ from db.models import Chat
 from nicegui import ui
 from services import ChatService, MorseConverter
 from services.file_upload_service import (
+<<<<<<< Updated upstream
     EmptyFileError,
     FileEncodingError,
     FileReadError,
     FileUploadService,
+=======
+    FileUploadService,
+    InvalidFileFormatError,
+    EmptyFileError,
+    MixedContentError,
+>>>>>>> Stashed changes
     InvalidCharactersError,
     InvalidFileFormatError,
     InvalidMorseError,
@@ -155,23 +162,32 @@ class ChatView:
 
     async def _handle_upload(self, event) -> None:
         upload = getattr(event, "file", None)
+        if upload is None:
+            ui.notify("Datei konnte nicht gelesen werden.", type="negative")
+            return
 
         try:
-            # Process the file (validate format, read content)
-            content = await FileUploadService.process_upload(upload)
+            raw_text = await upload.text(encoding="utf-8")
+        except UnicodeDecodeError:
+            ui.notify("Datei ist keine gültige UTF-8 Textdatei.", type="negative")
+            return
+        except Exception:
+            ui.notify("Datei konnte nicht gelesen werden.", type="negative")
+            return
 
+<<<<<<< Updated upstream
             # Validate content (mixed content, invalid characters, etc.)
+=======
+        try:
+            content = FileUploadService.process_upload(
+                upload.name, upload.content_type, raw_text
+            )
+>>>>>>> Stashed changes
             content = FileUploadService.validate_content(content)
-
-            # Send the content
             self._send(content)
 
         except InvalidFileFormatError as exc:
             ui.notify(str(exc), type="warning")
-        except FileEncodingError as exc:
-            ui.notify(str(exc), type="negative")
-        except FileReadError as exc:
-            ui.notify(str(exc), type="negative")
         except EmptyFileError as exc:
             ui.notify(str(exc), type="warning")
         except MixedContentError as exc:
